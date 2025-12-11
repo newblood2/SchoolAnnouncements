@@ -4,11 +4,10 @@
 FROM node:18-alpine
 
 # Install dependencies for MediaMTX and process management
-RUN apk add --no-cache wget supervisor
+RUN apk add --no-cache curl supervisor
 
-# Download MediaMTX
-ARG MEDIAMTX_VERSION=v1.9.3
-RUN wget -O /tmp/mediamtx.tar.gz https://github.com/bluenviron/mediamtx/releases/download/${MEDIAMTX_VERSION}/mediamtx_${MEDIAMTX_VERSION}_linux_amd64.tar.gz \
+# Download MediaMTX (hardcoded version for reliability)
+RUN curl -L -o /tmp/mediamtx.tar.gz "https://github.com/bluenviron/mediamtx/releases/download/v1.9.3/mediamtx_v1.9.3_linux_amd64.tar.gz" \
     && tar -xzf /tmp/mediamtx.tar.gz -C /usr/local/bin mediamtx \
     && rm /tmp/mediamtx.tar.gz \
     && chmod +x /usr/local/bin/mediamtx
