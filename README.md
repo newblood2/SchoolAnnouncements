@@ -48,15 +48,20 @@ A modern, real-time digital signage system designed for schools. Display announc
 
 ### Main Display
 *Screenshot of the main announcement display*
+<img width="2556" height="1255" alt="Screenshot 2025-12-11 070122" src="https://github.com/user-attachments/assets/a45c096f-1874-4d41-81b1-a234278fa9bc" />
 
 ### Admin Panel
 *Screenshot of the admin panel*
+<img width="2543" height="1233" alt="Screenshot 2025-12-11 070157" src="https://github.com/user-attachments/assets/d9df63d7-23ee-4369-8761-1154c9ea11da" />
 
 ### Emergency Alert
 *Screenshot of emergency alert mode*
+<img width="2541" height="1174" alt="Screenshot 2025-12-11 070217" src="https://github.com/user-attachments/assets/d7750831-ca10-4d94-93dd-a66755cc8a5b" />
 
 ### Dismissal Display
 *Screenshot of student dismissal display*
+<img width="842" height="1122" alt="Screenshot 2025-12-11 070332" src="https://github.com/user-attachments/assets/2c53e406-51c5-42f2-896a-bd7c352bad51" />
+<img width="2537" height="1240" alt="Screenshot 2025-12-11 070406" src="https://github.com/user-attachments/assets/feee64bf-bf00-4f07-856c-3322bdececad" />
 
 </details>
 
