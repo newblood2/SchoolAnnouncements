@@ -1726,8 +1726,6 @@ app.delete('/api/dismissal/history', authenticate, async (req, res) => {
 // ANALYTICS
 // ============================================
 
-const ANALYTICS_FILE = path.join(__dirname, 'analytics.json');
-
 // Analytics storage
 let analyticsData = {
     slideViews: {},
