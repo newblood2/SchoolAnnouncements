@@ -1,16 +1,18 @@
-# School Announcements - Single Container Setup
-# Serves both frontend and API from one container
+# School Announcements - All-in-One Container
+# Includes: Web UI + API + MediaMTX Streaming Server
 
 services:
-  # Combined frontend + API service
   school-announcements:
     build: .
     container_name: school-announcements
     ports:
-      - "8080:8080"
+      - "8080:8080"      # Web UI + API
+      - "8889:8889"      # WebRTC/WHIP (OBS streaming)
+      - "1935:1935"      # RTMP (fallback for older OBS)
+      - "8189:8189/udp"  # WebRTC ICE
+      - "8189:8189/tcp"  # WebRTC ICE
+      - "8888:8888"      # HLS (fallback)
     restart: unless-stopped
-    depends_on:
-      - streaming-server
     volumes:
       # Persistent data storage
       - ./data:/app/data
@@ -32,31 +34,8 @@ services:
       interval: 30s
       timeout: 3s
       retries: 3
-      start_period: 5s
+      start_period: 10s
     labels:
       - "com.school.app=announcements"
       - "com.school.description=School Announcements Display System"
       - "com.school.version=2.0.0"
-
-  # MediaMTX streaming server for OBS/WebRTC livestreams
-  streaming-server:
-    image: bluenviron/mediamtx:latest
-    container_name: school-streaming-server
-    restart: unless-stopped
-    ports:
-      - "1935:1935"    # RTMP (for OBS)
-      - "8554:8554"    # RTSP
-      - "8888:8888"    # HLS
-      - "8889:8889"    # WebRTC HTTP (for stream viewer)
-      - "8189:8189/udp"  # WebRTC ICE/UDP
-      - "8189:8189/tcp"  # WebRTC ICE/TCP
-      - "8890:8890/udp"  # SRT
-      - "9997:9997"    # API
-      - "9998:9998"    # Metrics
-    volumes:
-      - ./streaming-server/mediamtx.yml:/mediamtx.yml:ro
-    environment:
-      - TZ=${TZ:-America/New_York}
-    labels:
-      - "com.school.app=streaming-server"
-      - "com.school.description=MediaMTX WebRTC Streaming Server for OBS"

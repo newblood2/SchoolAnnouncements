@@ -1,11 +1,21 @@
-# Combined Single-Container Dockerfile
-# Serves both the frontend and API from one Node.js container
+# Combined All-in-One Dockerfile
+# Includes: Node.js API + Static Files + MediaMTX Streaming Server
 
 FROM node:18-alpine
 
+# Install dependencies for MediaMTX and process management
+RUN apk add --no-cache wget supervisor
+
+# Download MediaMTX
+ARG MEDIAMTX_VERSION=v1.9.3
+RUN wget -O /tmp/mediamtx.tar.gz https://github.com/bluenviron/mediamtx/releases/download/${MEDIAMTX_VERSION}/mediamtx_${MEDIAMTX_VERSION}_linux_amd64.tar.gz \
+    && tar -xzf /tmp/mediamtx.tar.gz -C /usr/local/bin mediamtx \
+    && rm /tmp/mediamtx.tar.gz \
+    && chmod +x /usr/local/bin/mediamtx
+
 WORKDIR /app
 
-# Install dependencies
+# Install Node.js dependencies
 COPY api/package*.json ./
 RUN npm install --production
 
@@ -25,8 +35,10 @@ COPY config.example.js ./public/
 COPY service-worker.js ./public/
 
 # Copy JavaScript files
-COPY *.js ./public/
 COPY js/ ./public/js/
+
+# Copy MediaMTX configuration
+COPY streaming-server/mediamtx.yml /etc/mediamtx.yml
 
 # Create directories for persistent data
 RUN mkdir -p /app/data /app/public/uploads /app/public/slides
@@ -37,18 +49,52 @@ RUN echo '{}' > /app/data/settings.json && \
     echo '{}' > /app/data/dismissal-history.json && \
     echo '{}' > /app/data/analytics.json
 
+# Create supervisord configuration
+RUN mkdir -p /etc/supervisor.d
+RUN cat > /etc/supervisor.d/services.ini << 'EOF'
+[supervisord]
+nodaemon=true
+logfile=/dev/stdout
+logfile_maxbytes=0
+pidfile=/var/run/supervisord.pid
+
+[program:nodejs]
+command=node /app/server.js
+directory=/app
+autostart=true
+autorestart=true
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+
+[program:mediamtx]
+command=/usr/local/bin/mediamtx /etc/mediamtx.yml
+autostart=true
+autorestart=true
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+EOF
+
 # Environment variables
 ENV PORT=8080
 ENV NODE_ENV=production
 ENV DATA_DIR=/app/data
 ENV PUBLIC_DIR=/app/public
 
-# Expose single port
-EXPOSE 8080
+# Expose ports
+# 8080 - Web UI + API
+# 8889 - WebRTC/WHIP (OBS streaming)
+# 1935 - RTMP (fallback)
+# 8189 - WebRTC ICE
+# 8888 - HLS (fallback)
+EXPOSE 8080 8889 1935 8189 8189/udp 8888
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
     CMD wget --quiet --tries=1 --spider http://localhost:8080/api/health || exit 1
 
-# Start the server
-CMD ["node", "server.js"]
+# Start supervisord (manages both Node.js and MediaMTX)
+CMD ["supervisord", "-c", "/etc/supervisor.d/services.ini"]
