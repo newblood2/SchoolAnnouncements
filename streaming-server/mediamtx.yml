@@ -1,22 +1,9 @@
 # MediaMTX Configuration for School Announcements
-# Optimized for ultra-low latency WebRTC streaming
+# Simplified for compatibility with v1.9.x
 
 # Logging
 logLevel: info
 logDestinations: [stdout]
-
-# Authentication - allow API access from Docker network
-authInternalUsers:
-  - user: any
-    pass:
-    ips: ['127.0.0.1', '::1', '172.16.0.0/12', '192.168.0.0/16', '10.0.0.0/8']
-    permissions:
-      - action: api
-      - action: metrics
-      - action: pprof
-      - action: read
-      - action: publish
-      - action: playback
 
 # API server
 api: yes
@@ -29,52 +16,33 @@ metricsAddress: :9998
 # RTMP server (for OBS compatibility)
 rtmp: yes
 rtmpAddress: :1935
-rtmpEncryption: "no"
-rtmpServerKey: server.key
-rtmpServerCert: server.crt
 
-# HLS server (for fallback compatibility if needed)
+# HLS server (fallback)
 hls: yes
 hlsAddress: :8888
-hlsEncryption: no
-hlsServerKey: server.key
-hlsServerCert: server.crt
-hlsAlwaysRemux: no
 hlsVariant: lowLatency
 hlsSegmentCount: 7
 hlsSegmentDuration: 1s
 hlsPartDuration: 200ms
-hlsSegmentMaxSize: 50M
 
 # WebRTC server (main output for displays)
 webrtc: yes
 webrtcAddress: :8889
-webrtcEncryption: no
-webrtcServerKey: server.key
-webrtcServerCert: server.crt
-webrtcAllowOrigins: ["*"]
-webrtcTrustedProxies: []
 webrtcLocalUDPAddress: :8189
 webrtcLocalTCPAddress: :8189
 webrtcIPsFromInterfaces: yes
-webrtcIPsFromInterfacesList: []
-webrtcAdditionalHosts: []
-webrtcICEServers2: []
+webrtcAllowOrigin: "*"
 
 # Paths (streaming endpoints)
 paths:
   # Main announcements stream
   announcements:
     source: publisher
-    sourceOnDemand: no
-    runOnReady: ""
-    runOnNotReady: ""
 
-  # Alias for "live" path (for RTMP compatibility)
+  # Alias for "live" path
   live:
     source: publisher
-    sourceOnDemand: no
 
-  # Default path for any stream
+  # Allow any other stream path
   all_others:
     source: publisher
