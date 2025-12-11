@@ -1,0 +1,193 @@
+{
+  "customTheme": {
+    "bgGradientStart": "#134e5e",
+    "bgGradientEnd": "#71b280",
+    "mainContentBg": "#ffffff",
+    "mainContentOpacity": 12,
+    "weatherPanelBg": "#000000",
+    "weatherPanelOpacity": 32,
+    "bottomPanelBg": "#000000",
+    "bottomPanelOpacity": 42,
+    "accentColor": "#a8e6cf"
+  },
+  "customSlides": [
+    {
+      "type": "custom",
+      "content": "<h1>Welcome</h1><p>Morning Announcements</p>"
+    },
+    {
+      "type": "custom",
+      "content": "<h2>Today's Events</h2><ul><li>Student Council Meeting - 3:00 PM</li><li>Basketball Practice - 4:00 PM</li><li>Drama Club Rehearsal - 3:30 PM</li></ul>"
+    },
+    {
+      "type": "custom",
+      "content": "<h2>Important Reminders</h2><ul><li>Report cards available next week</li><li>Picture day retakes on Friday</li><li>Winter break begins December 23rd</li></ul>"
+    },
+    {
+      "type": "custom",
+      "content": "<h2>test</h2><p>test</p>"
+    },
+    {
+      "type": "welcome",
+      "content": "<h1>Welcome!</h1><p class=\"subtitle\">Welcome sdlkfasldpfj akjw34 k34</p>"
+    }
+  ],
+  "livestreamConfig": {
+    "enabled": true,
+    "url": "/stream/mystream/",
+    "autoDetect": true,
+    "checkInterval": 60000
+  },
+  "generalConfig": {
+    "schoolName": "St. Paul's Lutheran School",
+    "slideshowInterval": 8000
+  },
+  "USE_IMAGE_SLIDES": false,
+  "customLayout": {
+    "name": "Default Layout",
+    "zones": {
+      "main": [
+        {
+          "type": "slideshow",
+          "config": {}
+        },
+        {
+          "type": "slideshow",
+          "config": {}
+        },
+        {
+          "type": "school-name",
+          "config": {}
+        }
+      ],
+      "sidebar": [
+        {
+          "type": "weather",
+          "config": {}
+        }
+      ],
+      "footer": [
+        {
+          "type": "school-name",
+          "config": {}
+        },
+        {
+          "type": "clock",
+          "config": {
+            "showDate": true
+          }
+        }
+      ]
+    }
+  },
+  "gridLayout": {
+    "columns": 16,
+    "rows": 9,
+    "gap": 16,
+    "widgets": [
+      {
+        "id": "widget-26",
+        "type": "slideshow",
+        "x": 0,
+        "y": 0,
+        "width": 12,
+        "height": 7,
+        "config": {}
+      },
+      {
+        "id": "widget-27",
+        "type": "weather",
+        "x": 12,
+        "y": 0,
+        "width": 4,
+        "height": 5,
+        "config": {}
+      },
+      {
+        "id": "widget-28",
+        "type": "school-name",
+        "x": 0,
+        "y": 7,
+        "width": 9,
+        "height": 2,
+        "config": {}
+      },
+      {
+        "id": "widget-29",
+        "type": "clock",
+        "x": 9,
+        "y": 7,
+        "width": 3,
+        "height": 2,
+        "config": {
+          "showDate": true
+        }
+      },
+      {
+        "id": "widget-32",
+        "type": "calendar",
+        "x": 12,
+        "y": 5,
+        "width": 4,
+        "height": 4,
+        "config": {
+          "daysAhead": 7,
+          "maxEvents": 5
+        }
+      }
+    ]
+  },
+  "enabledFeatures": {
+    "weather": true,
+    "bellSchedule": true,
+    "weatherAlerts": true,
+    "displayGroups": false,
+    "parentNotifications": false,
+    "displaySchedule": false,
+    "livestream": true
+  },
+  "slideshows": {
+    "default": {
+      "name": "Main Slideshow",
+      "slides": [
+        {
+          "type": "custom",
+          "content": "<h1>Welcome</h1><p>Morning Announcements</p>"
+        },
+        {
+          "type": "custom",
+          "content": "<h2>Today's Events</h2><ul><li>Student Council Meeting - 3:00 PM</li><li>Basketball Practice - 4:00 PM</li><li>Drama Club Rehearsal - 3:30 PM</li></ul>"
+        },
+        {
+          "type": "custom",
+          "content": "<h2>Important Reminders</h2><ul><li>Report cards available next week</li><li>Picture day retakes on Friday</li><li>Winter break begins December 23rd</li></ul>"
+        },
+        {
+          "type": "custom",
+          "content": "<h2>test</h2><p>test</p>"
+        },
+        {
+          "type": "welcome",
+          "content": "<h1>Welcome!</h1><p class=\"subtitle\">Welcome sdlkfasldpfj akjw34 k34</p>"
+        }
+      ]
+    },
+    "slideshow-1765409798311-bk9p4asxg": {
+      "name": "Slideshow 2",
+      "slides": [
+        {
+          "type": "welcome",
+          "content": "<h1>Welcome!</h1><p class=\"subtitle\">Morning Announcements</p>"
+        },
+        {
+          "type": "lunch",
+          "content": "\n                <h2>Today's Lunch</h2>\n                <div class=\"lunch-menu\">\n                    <div class=\"lunch-item\"><span class=\"lunch-label\">Main:</span> Pizza</div>\n                    <div class=\"lunch-item\"><span class=\"lunch-label\">Sides:</span> Salad, Fruit Cup</div>\n                    <div class=\"lunch-item\"><span class=\"lunch-label\">Drink:</span> Milk or Juice</div>\n                </div>\n            "
+        },
+        {
+          "type": "announcement",
+          "content": "<h2>Announcement</h2><p class=\"announcement-text\">Santa is checking his list... Twice!</p>"
+        }
+      ]
+    }
+  }
+}

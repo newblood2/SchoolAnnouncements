@@ -1,0 +1,22 @@
+services:
+  mediamtx:
+    image: bluenviron/mediamtx:latest
+    container_name: school-streaming-server
+    restart: unless-stopped
+    ports:
+      - "1935:1935"    # RTMP
+      - "8554:8554"    # RTSP
+      - "8888:8888"    # HLS
+      - "8889:8889"    # WebRTC (HTTP)
+      - "8189:8189/udp"  # WebRTC (ICE/UDP)
+      - "8189:8189/tcp"  # WebRTC (ICE/TCP)
+      - "8890:8890/udp"  # SRT
+      - "9997:9997"    # API
+      - "9998:9998"    # Metrics
+    volumes:
+      - ./mediamtx.yml:/mediamtx.yml:ro
+    environment:
+      - TZ=America/New_York
+    labels:
+      - "com.school.app=streaming-server"
+      - "com.school.description=MediaMTX WebRTC Streaming Server for OBS"

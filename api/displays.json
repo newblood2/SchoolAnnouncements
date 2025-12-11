@@ -1,0 +1,26 @@
+{
+  "display_mizh740h_vxdmodua": {
+    "name": "Unnamed Display",
+    "location": "Unknown",
+    "status": "online",
+    "registeredAt": 1765406883969,
+    "lastHeartbeat": 1765450429720,
+    "ipAddress": "172.20.0.1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+    "screenResolution": "1441x2561",
+    "currentPage": "index",
+    "offlineSince": null
+  },
+  "display_ccd404024d6a464d": {
+    "name": "Unnamed Display",
+    "location": "Unknown",
+    "status": "offline",
+    "registeredAt": 1765408620368,
+    "lastHeartbeat": 1765408620368,
+    "ipAddress": "172.20.0.1",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
+    "screenResolution": "unknown",
+    "currentPage": "index",
+    "offlineSince": 1765409113284
+  }
+}
