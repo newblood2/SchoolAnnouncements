@@ -38,6 +38,9 @@ COPY service-worker.js ./public/
 # Copy JavaScript files
 COPY js/ ./public/js/
 
+# Copy admin JS files (they're in root and referenced without js/ prefix)
+COPY admin*.js ./public/
+
 # Copy MediaMTX configuration
 COPY streaming-server/mediamtx.yml /etc/mediamtx.yml
 
