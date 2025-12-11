@@ -8,9 +8,11 @@ RUN apk add --no-cache curl supervisor
 
 # Download MediaMTX (hardcoded version for reliability)
 RUN curl -L -o /tmp/mediamtx.tar.gz "https://github.com/bluenviron/mediamtx/releases/download/v1.9.3/mediamtx_v1.9.3_linux_amd64.tar.gz" \
-    && tar -xzf /tmp/mediamtx.tar.gz -C /usr/local/bin mediamtx \
-    && rm /tmp/mediamtx.tar.gz \
-    && chmod +x /usr/local/bin/mediamtx
+    && cd /tmp \
+    && tar -xzf mediamtx.tar.gz \
+    && mv mediamtx /usr/local/bin/ \
+    && chmod +x /usr/local/bin/mediamtx \
+    && rm -rf /tmp/mediamtx*
 
 WORKDIR /app
 
