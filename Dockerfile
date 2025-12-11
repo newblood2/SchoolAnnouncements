@@ -49,8 +49,10 @@ RUN echo '{}' > /app/data/settings.json && \
     echo '{}' > /app/data/dismissal-history.json && \
     echo '{}' > /app/data/analytics.json
 
-# Copy supervisord configuration
+# Copy supervisord configuration and entrypoint
 COPY supervisord.conf /etc/supervisord.conf
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 # Environment variables
 ENV PORT=8080
@@ -70,5 +72,5 @@ EXPOSE 8080 8889 1935 8189 8189/udp 8888
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
     CMD wget --quiet --tries=1 --spider http://localhost:8080/api/health || exit 1
 
-# Start supervisord (manages both Node.js and MediaMTX)
-CMD ["supervisord", "-c", "/etc/supervisord.conf"]
+# Start via entrypoint (properly passes environment variables)
+CMD ["/entrypoint.sh"]
