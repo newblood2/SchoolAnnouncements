@@ -111,22 +111,23 @@ const auditLog = new AuditLogger({
     }
 });
 
-// Rate limiters for different endpoints (increased for better UX)
+// Rate limiters - very permissive for school deployments with many displays
+// In containerized environments, all clients may share the same IP
 const generalRateLimiter = new RateLimiter({
     windowMs: 60000, // 1 minute
-    maxRequests: 300, // Increased from 100
+    maxRequests: 10000, // Essentially unlimited for normal use
     message: 'Too many requests, please try again later'
 });
 
 const authRateLimiter = new RateLimiter({
     windowMs: 900000, // 15 minutes
-    maxRequests: 20, // Increased from 10
+    maxRequests: 100, // Generous for shared IP scenarios
     message: 'Too many login attempts, please try again later'
 });
 
 const apiRateLimiter = new RateLimiter({
     windowMs: 60000, // 1 minute
-    maxRequests: 120, // Increased from 60
+    maxRequests: 10000, // Essentially unlimited for normal use
     message: 'API rate limit exceeded'
 });
 
