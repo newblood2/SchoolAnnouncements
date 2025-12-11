@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Stream Viewer - WebRTC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+        }
+
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: none;
+        }
+
+        #video.playing {
+            display: block;
+        }
+
+        .status {
+            position: absolute;
+            color: white;
+            font-size: 24px;
+            text-align: center;
+            padding: 20px;
+            max-width: 600px;
+        }
+
+        .loading {
+            color: #4a9eff;
+        }
+
+        .error {
+            color: #ff4444;
+            font-size: 20px;
+        }
+
+        .reconnecting {
+            color: #ffaa00;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #4a9eff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .debug-info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: #0f0;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .debug-info.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="status" class="status loading">
+        <div class="spinner"></div>
+        <div id="statusText">Connecting to stream...</div>
+    </div>
+    <video id="video" autoplay playsinline muted></video>
+    <div id="debugInfo" class="debug-info"></div>
+
+    <script type="module">
+        const video = document.getElementById('video');
+        const status = document.getElementById('status');
+        const statusText = document.getElementById('statusText');
+        const debugInfo = document.getElementById('debugInfo');
+
+        // Get stream configuration from localStorage (set by admin panel) or use default
+        const livestreamConfig = JSON.parse(localStorage.getItem('livestreamConfig') || '{}');
+
+        // Default stream name is 'announcements'
+        const streamName = 'announcements';
+
+        // Get server address from config or use localhost
+        let serverAddress = 'localhost:8889';
+        if (livestreamConfig.url) {
+            try {
+                const url = new URL(livestreamConfig.url);
+                serverAddress = url.host;
+            } catch (e) {
+                console.log('Using default server address');
+            }
+        }
+
+        const whepUrl = `http://${serverAddress}/${streamName}/whep`;
+
+        let pc = null;
+        let restartTimeout = null;
+        let sessionUrl = '';
+
+        // Debug mode (press 'D' to toggle)
+        let debugMode = false;
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'd' || e.key === 'D') {
+                debugMode = !debugMode;
+                debugInfo.classList.toggle('show', debugMode);
+            }
+        });
+
+        function log(message, type = 'info') {
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            if (debugMode) {
+                const timestamp = new Date().toLocaleTimeString();
+                debugInfo.innerHTML += `${timestamp} [${type}] ${message}<br>`;
+                debugInfo.scrollTop = debugInfo.scrollHeight;
+            }
+        }
+
+        function showStatus(message, type = 'loading') {
+            status.className = `status ${type}`;
+            statusText.textContent = message;
+            status.style.display = 'flex';
+            status.style.flexDirection = 'column';
+            status.style.alignItems = 'center';
+        }
+
+        function hideStatus() {
+            status.style.display = 'none';
+            video.classList.add('playing');
+        }
+
+        async function start() {
+            log(`Starting WebRTC connection to ${whepUrl}`);
+            showStatus('Connecting to stream...', 'loading');
+
+            try {
+                // Create RTCPeerConnection
+                pc = new RTCPeerConnection({
+                    iceServers: [
+                        {
+                            urls: ['stun:stun.l.google.com:19302']
+                        }
+                    ]
+                });
+
+                // Setup event handlers
+                pc.oniceconnectionstatechange = () => {
+                    log(`ICE connection state: ${pc.iceConnectionState}`, 'info');
+
+                    if (pc.iceConnectionState === 'connected') {
+                        log('WebRTC connected successfully!', 'success');
+                        hideStatus();
+                    } else if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'closed') {
+                        log('WebRTC connection failed or closed', 'error');
+                        handleError('Connection failed. Reconnecting...');
+                    }
+                };
+
+                pc.ontrack = (event) => {
+                    log(`Received ${event.track.kind} track`, 'success');
+                    video.srcObject = event.streams[0];
+                };
+
+                // Add transceivers to receive video and audio
+                pc.addTransceiver('video', {direction: 'recvonly'});
+                pc.addTransceiver('audio', {direction: 'recvonly'});
+
+                // Create offer
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+
+                // Wait for ICE gathering to complete
+                await new Promise((resolve) => {
+                    if (pc.iceGatheringState === 'complete') {
+                        resolve();
+                    } else {
+                        const checkState = () => {
+                            if (pc.iceGatheringState === 'complete') {
+                                pc.removeEventListener('icegatheringstatechange', checkState);
+                                resolve();
+                            }
+                        };
+                        pc.addEventListener('icegatheringstatechange', checkState);
+                    }
+                });
+
+                // Send offer to MediaMTX WHEP endpoint
+                log('Sending WHEP request to server', 'info');
+                const response = await fetch(whepUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/sdp',
+                    },
+                    body: pc.localDescription.sdp,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`WHEP request failed: ${response.status} ${response.statusText}`);
+                }
+
+                // Get session URL from Location header for cleanup
+                sessionUrl = new URL(response.headers.get('location'), whepUrl).toString();
+                log(`Session created: ${sessionUrl}`, 'success');
+
+                // Set remote description from server's answer
+                const answerSdp = await response.text();
+                await pc.setRemoteDescription(new RTCSessionDescription({
+                    type: 'answer',
+                    sdp: answerSdp,
+                }));
+
+                log('WebRTC negotiation complete', 'success');
+
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+                handleError(`Connection error: ${error.message}`);
+            }
+        }
+
+        function handleError(message) {
+            showStatus(message, 'error');
+
+            // Cleanup existing connection
+            if (pc) {
+                pc.close();
+                pc = null;
+            }
+
+            // Attempt to delete session if it exists
+            if (sessionUrl) {
+                fetch(sessionUrl, { method: 'DELETE' }).catch(() => {});
+                sessionUrl = '';
+            }
+
+            // Retry after 3 seconds
+            if (restartTimeout) {
+                clearTimeout(restartTimeout);
+            }
+
+            restartTimeout = setTimeout(() => {
+                log('Attempting to reconnect...', 'info');
+                showStatus('Reconnecting...', 'reconnecting');
+                start();
+            }, 3000);
+        }
+
+        // Handle page visibility changes to pause/resume
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                log('Page hidden, maintaining connection', 'info');
+            } else {
+                log('Page visible', 'info');
+            }
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (sessionUrl) {
+                navigator.sendBeacon(sessionUrl, new Blob([], { type: 'application/json' }));
+            }
+            if (pc) {
+                pc.close();
+            }
+        });
+
+        // Start streaming
+        log('Stream Viewer Initialized (WebRTC/WHEP)', 'info');
+        log(`Server: ${serverAddress}`, 'info');
+        log(`Stream: ${streamName}`, 'info');
+        log('Press D to toggle debug info', 'info');
+
+        start();
+    </script>
+</body>
+</html>

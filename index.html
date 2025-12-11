@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="School morning announcements display system with weather, time, and event information">
+    <title>School Announcements</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Resource hints for better performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://api.openweathermap.org">
+    <link rel="dns-prefetch" href="https://openweathermap.org">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body role="application" aria-label="School Announcements Display">
+    <!-- Skip to main content link for keyboard navigation -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <!-- Main Content Area (75% width, 80% height) -->
+    <main class="main-content" id="main-content" role="main" aria-label="Announcements and Livestream">
+        <section class="content-display" id="contentDisplay" aria-label="Main display area">
+            <!-- Slideshow or Livestream will be displayed here -->
+            <div class="slideshow-container" id="slideshowContainer" role="region" aria-label="Announcement slideshow" aria-live="polite">
+                <article class="slide active" role="article" aria-label="Welcome message">
+                    <h1 id="welcomeMessage">Welcome</h1>
+                    <p>Morning Announcements</p>
+                </article>
+                <article class="slide" role="article" aria-label="Today's events">
+                    <h2>Today's Events</h2>
+                    <ul aria-label="List of today's events">
+                        <li>Student Council Meeting - 3:00 PM</li>
+                        <li>Basketball Practice - 4:00 PM</li>
+                        <li>Drama Club Rehearsal - 3:30 PM</li>
+                    </ul>
+                </article>
+                <article class="slide" role="article" aria-label="Important reminders">
+                    <h2>Important Reminders</h2>
+                    <ul aria-label="List of important reminders">
+                        <li>Report cards available next week</li>
+                        <li>Picture day retakes on Friday</li>
+                        <li>Winter break begins December 23rd</li>
+                    </ul>
+                </article>
+            </div>
+            <!-- Livestream iframe (hidden by default) -->
+            <iframe id="livestreamFrame" class="livestream-frame" style="display: none;"
+                    allow="autoplay; fullscreen"
+                    allowfullscreen
+                    title="School livestream video"
+                    aria-label="Live broadcast from school"></iframe>
+        </section>
+    </main>
+
+    <!-- Weather Panel (25% width, 100% height) -->
+    <aside class="weather-panel" role="complementary" aria-label="Weather information">
+        <header class="weather-header">
+            <h2>Weather</h2>
+        </header>
+
+        <!-- Current Weather -->
+        <section class="current-weather" id="currentWeather" role="region" aria-label="Current weather conditions">
+            <div class="weather-icon" aria-hidden="true">
+                <img id="currentIcon" src="" alt="Current weather condition icon">
+            </div>
+            <div class="temperature" id="currentTemp" aria-label="Current temperature">--°F</div>
+            <div class="weather-description" id="currentDesc" aria-live="polite">Loading...</div>
+            <div class="weather-details" aria-label="Additional weather details">
+                <div class="detail">
+                    <span class="label">Feels Like:</span>
+                    <span id="feelsLike" aria-label="Feels like temperature">--°F</span>
+                </div>
+                <div class="detail">
+                    <span class="label">Humidity:</span>
+                    <span id="humidity" aria-label="Humidity percentage">--%</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Week Forecast -->
+        <section class="week-forecast" id="weekForecast" role="region" aria-label="5-day weather forecast">
+            <!-- Forecast days will be populated by JavaScript -->
+        </section>
+    </aside>
+
+    <!-- Bottom Panel (75% width, 20% height) -->
+    <footer class="bottom-panel" role="contentinfo" aria-label="School information and current time">
+        <div class="school-name" role="banner">
+            <h1 id="schoolName" aria-label="School name">School Name</h1>
+        </div>
+        <div class="datetime-display" role="timer" aria-label="Current date and time" aria-live="off">
+            <time class="time" id="timeDisplay" datetime="" aria-label="Current time">00:00:00</time>
+            <time class="date" id="dateDisplay" datetime="" aria-label="Current date">Loading...</time>
+        </div>
+    </footer>
+
+    <!-- Error Notification Container -->
+    <div id="errorNotificationContainer" class="error-notification-container" aria-live="polite"></div>
+
+    <!-- Configuration -->
+    <script src="config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/constants.js"></script>
+    <script src="js/error-handler.js"></script>
+    <script src="js/config-validator.js"></script>
+    <script src="js/cache.js"></script>
+
+    <!-- Theme Loader (loads admin panel settings) -->
+    <script src="js/theme-loader.js"></script>
+
+    <!-- Layout Renderer (applies custom layouts) -->
+    <script src="js/layout-renderer.js"></script>
+
+    <!-- Emergency Alert System -->
+    <script src="js/emergency-alert.js"></script>
+
+    <!-- Application Modules -->
+    <script src="js/datetime.js"></script>
+    <script src="js/weather.js"></script>
+    <script src="js/slideshow.js"></script>
+    <script src="js/livestream.js"></script>
+    <script src="js/dismissal-display.js"></script>
+    <script src="js/weather-alerts.js"></script>
+    <script src="js/bell-schedule.js"></script>
+    <script src="js/init.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then((registration) => {
+                        console.log('Service Worker registered:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

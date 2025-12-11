@@ -1,0 +1,2074 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ========================================
+   Accessibility Styles
+   ======================================== */
+
+/* Skip to main content link - visible only on keyboard focus */
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 0;
+    background: var(--color-accent-gold, #ffd700);
+    color: #000;
+    padding: 1rem 2rem;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.6rem;
+    z-index: 99999;
+    border-radius: 0 0 8px 0;
+}
+
+.skip-link:focus {
+    top: 0;
+    outline: 3px solid #000;
+    outline-offset: 2px;
+}
+
+/* Enhanced focus indicators for keyboard navigation */
+*:focus {
+    outline: 3px solid var(--color-accent-gold, #ffd700);
+    outline-offset: 2px;
+}
+
+*:focus:not(:focus-visible) {
+    outline: none;
+}
+
+*:focus-visible {
+    outline: 3px solid var(--color-accent-gold, #ffd700);
+    outline-offset: 2px;
+}
+
+/* Ensure interactive elements have visible focus */
+a:focus,
+button:focus,
+[role="button"]:focus {
+    outline: 3px solid var(--color-accent-gold, #ffd700);
+    outline-offset: 2px;
+}
+
+/**
+ * ============================================================================
+ * CSS Custom Properties (CSS Variables) - Theme Customization Guide
+ * ============================================================================
+ *
+ * This section contains all customizable theme variables for the School
+ * Announcements Display. You can easily customize the entire look and feel
+ * by modifying these values in one centralized location.
+ *
+ * USAGE:
+ * ------
+ * To customize the theme, simply modify the values in the :root section below.
+ * Changes will automatically propagate throughout the entire application.
+ *
+ * EXAMPLES:
+ * ---------
+ * 1. Change the background gradient:
+ *    --color-bg-gradient-start: #2c3e50;
+ *    --color-bg-gradient-end: #3498db;
+ *
+ * 2. Change the accent color:
+ *    --color-accent-gold: #e67e22;
+ *
+ * 3. Adjust font sizes for better readability:
+ *    --font-size-mega: 7rem;
+ *    --font-size-base: 2.5rem;
+ *
+ * 4. Modify spacing throughout the app:
+ *    --spacing-lg: 2.5rem;
+ *    --spacing-xl: 3rem;
+ *
+ * CATEGORIES:
+ * -----------
+ * - Color Palette: Background, text, panel, accent, and status colors
+ * - Typography: Font families, sizes, weights, and line heights
+ * - Spacing: Consistent spacing scale from xs to huge
+ * - Border Radius: Rounded corner sizes
+ * - Effects: Shadows, blur, and transitions
+ * - Layout: Grid dimensions and proportions
+ * - Z-Index: Layer stacking order
+ * - Breakpoints: Responsive design thresholds
+ *
+ * TIPS:
+ * -----
+ * - Use consistent color values across your brand
+ * - Maintain good contrast ratios for accessibility (minimum 4.5:1)
+ * - Test changes on both 1080p and 4K displays
+ * - Keep spacing values proportional to maintain visual harmony
+ * - Use the 4K media query at the bottom to scale values for larger displays
+ *
+ * ============================================================================
+ */
+:root {
+    /* ========================================
+       Color Palette
+       ======================================== */
+
+    /* Primary Background Colors */
+    --color-bg-gradient-start: #1e3c72;
+    --color-bg-gradient-end: #2a5298;
+    --color-text-primary: #ffffff;
+    --color-text-secondary: rgba(255, 255, 255, 0.9);
+
+    /* Panel Backgrounds */
+    --color-panel-bg: rgba(255, 255, 255, 0.1);
+    --color-panel-dark: rgba(0, 0, 0, 0.3);
+    --color-panel-darker: rgba(0, 0, 0, 0.4);
+    --color-panel-border: rgba(255, 255, 255, 0.2);
+
+    /* Accent Colors */
+    --color-accent-gold: #ffd700;
+    --color-accent-yellow: #ffcc00;
+    --color-accent-blue: #a0c4ff;
+
+    /* Status Colors */
+    --color-info: #3498db;
+    --color-warning: #f39c12;
+    --color-error: #e74c3c;
+    --color-critical: #c0392b;
+
+    /* Shadow Colors */
+    --color-shadow-light: rgba(0, 0, 0, 0.3);
+    --color-shadow-medium: rgba(0, 0, 0, 0.5);
+    --color-shadow-text: rgba(0, 0, 0, 0.5);
+
+    /* ========================================
+       Typography
+       ======================================== */
+
+    --font-family-primary: 'Poppins', sans-serif;
+    --font-family-mono: 'Courier New', monospace;
+
+    /* Font Sizes - 1080p Base */
+    --font-size-mega: 6rem;
+    --font-size-xxl: 4.5rem;
+    --font-size-xl: 3.5rem;
+    --font-size-lg: 3rem;
+    --font-size-md: 2.8rem;
+    --font-size-base: 2.2rem;
+    --font-size-sm: 2rem;
+    --font-size-xs: 1.8rem;
+    --font-size-xxs: 1.6rem;
+    --font-size-tiny: 1.4rem;
+
+    /* Font Weights */
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    /* Line Heights */
+    --line-height-tight: 1.2;
+    --line-height-snug: 1.3;
+    --line-height-normal: 1.4;
+    --line-height-relaxed: 1.5;
+
+    /* ========================================
+       Spacing
+       ======================================== */
+
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 2.5rem;
+    --spacing-xxl: 3rem;
+    --spacing-huge: 4rem;
+
+    /* ========================================
+       Border Radius
+       ======================================== */
+
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 12px;
+    --radius-xl: 15px;
+    --radius-xxl: 20px;
+
+    /* ========================================
+       Effects
+       ======================================== */
+
+    /* Shadows */
+    --shadow-sm: 0 2px 4px var(--color-shadow-light);
+    --shadow-md: 0 4px 8px var(--color-shadow-light);
+    --shadow-lg: 0 8px 32px var(--color-shadow-medium);
+    --shadow-text: 1px 1px 2px var(--color-shadow-text);
+    --shadow-text-md: 2px 2px 4px var(--color-shadow-text);
+    --shadow-text-lg: 3px 3px 6px var(--color-shadow-text);
+
+    /* Blur */
+    --blur-sm: 5px;
+    --blur-md: 10px;
+
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+
+    /* ========================================
+       Layout
+       ======================================== */
+
+    --grid-main-width: 75%;
+    --grid-sidebar-width: 25%;
+    --grid-content-height: 80%;
+    --grid-footer-height: 20%;
+
+    /* ========================================
+       Z-Index Scale
+       ======================================== */
+
+    --z-base: 1;
+    --z-dropdown: 100;
+    --z-sticky: 500;
+    --z-modal: 1000;
+    --z-notification: 9999;
+
+    /* ========================================
+       Breakpoints (for reference in media queries)
+       ======================================== */
+
+    --breakpoint-mobile: 768px;
+    --breakpoint-4k: 2560px;
+}
+
+body {
+    font-family: var(--font-family-primary);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    display: grid;
+    grid-template-columns: var(--grid-main-width) var(--grid-sidebar-width);
+    grid-template-rows: var(--grid-content-height) var(--grid-footer-height);
+    background: linear-gradient(135deg, var(--color-bg-gradient-start) 0%, var(--color-bg-gradient-end) 100%);
+    color: var(--color-text-primary);
+}
+
+/* Main Content Area - 75% width, 80% height */
+.main-content {
+    grid-column: 1;
+    grid-row: 1;
+    padding: var(--spacing-lg);
+    overflow: hidden;
+}
+
+.content-display {
+    width: 100%;
+    height: 100%;
+    background: var(--color-panel-bg);
+    border-radius: var(--radius-xxl);
+    backdrop-filter: blur(var(--blur-md));
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Slideshow Styles */
+.slideshow-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    padding: var(--spacing-huge);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slide {
+    display: none;
+    text-align: center;
+    animation: fadeIn 1s;
+    width: 100%;
+}
+
+.slide.active {
+    display: block;
+}
+
+.slide h1 {
+    font-size: var(--font-size-mega);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-lg);
+    text-shadow: var(--shadow-text-lg);
+    line-height: var(--line-height-tight);
+}
+
+.slide h2 {
+    font-size: var(--font-size-xxl);
+    font-weight: var(--font-weight-semibold);
+    margin-bottom: var(--spacing-xxl);
+    text-shadow: var(--shadow-text-md);
+    line-height: var(--line-height-snug);
+}
+
+.slide p {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-normal);
+    text-shadow: var(--shadow-text-md);
+    line-height: var(--line-height-relaxed);
+}
+
+.slide ul {
+    list-style: none;
+    text-align: left;
+    display: inline-block;
+}
+
+.slide ul li {
+    font-size: var(--font-size-md);
+    margin: var(--spacing-lg) 0;
+    padding-left: var(--spacing-xxl);
+    position: relative;
+    text-shadow: var(--shadow-text-md);
+    line-height: var(--line-height-normal);
+}
+
+.slide ul li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    font-size: var(--font-size-xl);
+    color: var(--color-accent-gold);
+}
+
+/* Livestream Frame */
+.livestream-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: var(--radius-xxl);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Weather Panel - 25% width, 100% height */
+.weather-panel {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    background: var(--color-panel-dark);
+    backdrop-filter: blur(var(--blur-md));
+    padding: var(--spacing-lg);
+    border-left: 3px solid var(--color-panel-border);
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    max-height: 100vh;
+}
+
+.weather-header {
+    flex-shrink: 0;
+}
+
+.weather-header h2 {
+    font-size: clamp(1.5rem, 2vw, var(--font-size-lg));
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--spacing-md);
+    text-align: center;
+    text-shadow: var(--shadow-text-md);
+}
+
+/* Current Weather */
+.current-weather {
+    background: var(--color-panel-bg);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.weather-icon img {
+    width: clamp(80px, 8vw, 120px);
+    height: clamp(80px, 8vw, 120px);
+    filter: drop-shadow(var(--shadow-text-md));
+}
+
+.temperature {
+    font-size: clamp(3rem, 5vw, 5rem);
+    font-weight: var(--font-weight-bold);
+    margin: var(--spacing-xs) 0;
+    text-shadow: var(--shadow-text-md);
+}
+
+.weather-description {
+    font-size: clamp(1.2rem, 1.5vw, var(--font-size-sm));
+    font-weight: var(--font-weight-normal);
+    text-transform: capitalize;
+    margin-bottom: var(--spacing-sm);
+    text-shadow: var(--shadow-text);
+}
+
+.weather-details {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.detail {
+    display: flex;
+    justify-content: space-between;
+    font-size: clamp(1rem, 1.2vw, var(--font-size-xxs));
+    text-shadow: var(--shadow-text);
+}
+
+.detail .label {
+    font-weight: var(--font-weight-semibold);
+}
+
+/* Week Forecast */
+.week-forecast {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.forecast-day {
+    background: var(--color-panel-bg);
+    border-radius: var(--radius-lg);
+    padding: clamp(0.5rem, 1vw, var(--spacing-md));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: transform var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.forecast-day:hover {
+    transform: translateX(5px);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.forecast-day-name {
+    font-size: clamp(1.2rem, 1.3vw, var(--font-size-xs));
+    font-weight: var(--font-weight-semibold);
+    flex: 1;
+    text-shadow: var(--shadow-text);
+}
+
+.forecast-icon {
+    flex: 0 0 clamp(40px, 4vw, 60px);
+    text-align: center;
+}
+
+.forecast-icon img {
+    width: clamp(40px, 4vw, 60px);
+    height: clamp(40px, 4vw, 60px);
+    filter: drop-shadow(var(--shadow-text));
+}
+
+.forecast-temps {
+    flex: 1;
+    text-align: right;
+    font-size: clamp(1.2rem, 1.3vw, var(--font-size-xs));
+    font-weight: var(--font-weight-semibold);
+    text-shadow: var(--shadow-text);
+}
+
+.forecast-high {
+    color: var(--color-accent-yellow);
+}
+
+.forecast-low {
+    color: var(--color-accent-blue);
+    margin-left: var(--spacing-xs);
+}
+
+/* Bottom Panel - 75% width, 20% height */
+.bottom-panel {
+    grid-column: 1;
+    grid-row: 2;
+    background: var(--color-panel-darker);
+    backdrop-filter: blur(var(--blur-md));
+    border-top: 3px solid var(--color-panel-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--spacing-xxl);
+}
+
+.school-name h1 {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    text-shadow: var(--shadow-text-lg);
+    letter-spacing: 1px;
+}
+
+.datetime-display {
+    text-align: right;
+}
+
+.time {
+    font-size: var(--font-size-xxl);
+    font-weight: var(--font-weight-bold);
+    font-family: var(--font-family-mono);
+    text-shadow: var(--shadow-text-lg);
+    letter-spacing: 2px;
+}
+
+.date {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    margin-top: var(--spacing-xs);
+    text-shadow: var(--shadow-text-md);
+}
+
+/* Responsive adjustments for 4K displays */
+@media screen and (min-width: 2560px) {
+    :root {
+        /* Scale up font sizes for 4K */
+        --font-size-mega: 9rem;
+        --font-size-xxl: 6.5rem;
+        --font-size-xl: 5.5rem;
+        --font-size-lg: 4.5rem;
+        --font-size-md: 4rem;
+        --font-size-base: 3.2rem;
+        --font-size-sm: 3rem;
+        --font-size-xs: 2.6rem;
+        --font-size-xxs: 2.4rem;
+    }
+
+    .slide h2 { font-size: 7rem; }
+    .slide p { font-size: 4.5rem; }
+    .slide ul li::before { font-size: 5rem; }
+
+    .temperature { font-size: 7rem; }
+    .forecast-icon img { width: 90px; height: 90px; }
+    .weather-icon img { width: 180px; height: 180px; }
+}
+
+/* Scrollbar styling for weather panel */
+.weather-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.weather-panel::-webkit-scrollbar-track {
+    background: var(--color-panel-bg);
+    border-radius: var(--radius-sm);
+}
+
+.weather-panel::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-sm);
+}
+
+.weather-panel::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* ========================================
+   Error Notification System
+   ======================================== */
+
+.error-notification-container {
+    position: fixed;
+    top: var(--spacing-lg);
+    right: var(--spacing-lg);
+    z-index: var(--z-notification);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    max-width: 500px;
+    pointer-events: none;
+}
+
+.error-notification {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: rgba(0, 0, 0, 0.9);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(var(--blur-md));
+    box-shadow: var(--shadow-lg);
+    border-left: 4px solid;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all var(--transition-normal);
+    pointer-events: all;
+    min-width: 350px;
+}
+
+.error-notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Error level colors */
+.error-notification-info {
+    border-left-color: var(--color-info);
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(0, 0, 0, 0.9));
+}
+
+.error-notification-warning {
+    border-left-color: var(--color-warning);
+    background: linear-gradient(135deg, rgba(243, 156, 18, 0.2), rgba(0, 0, 0, 0.9));
+}
+
+.error-notification-error {
+    border-left-color: var(--color-error);
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.2), rgba(0, 0, 0, 0.9));
+}
+
+.error-notification-critical {
+    border-left-color: var(--color-critical);
+    background: linear-gradient(135deg, rgba(192, 57, 43, 0.3), rgba(0, 0, 0, 0.9));
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 8px 32px rgba(231, 76, 60, 0.5);
+    }
+    50% {
+        box-shadow: 0 8px 32px rgba(231, 76, 60, 0.8);
+    }
+}
+
+.error-notification-icon {
+    font-size: var(--font-size-sm);
+    flex-shrink: 0;
+}
+
+.error-notification-message {
+    flex: 1;
+    font-size: var(--font-size-xxs);
+    color: var(--color-text-primary);
+    line-height: var(--line-height-normal);
+    text-shadow: var(--shadow-text);
+}
+
+.error-notification-retry,
+.error-notification-close {
+    background: var(--color-panel-bg);
+    border: 1px solid var(--color-panel-border);
+    color: var(--color-text-primary);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: var(--font-size-tiny);
+    font-weight: var(--font-weight-semibold);
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.error-notification-retry:hover,
+.error-notification-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.error-notification-retry:active,
+.error-notification-close:active {
+    transform: scale(0.95);
+}
+
+.error-notification-close {
+    font-size: var(--font-size-sm);
+    line-height: 1;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-weight: var(--font-weight-bold);
+}
+
+/* Responsive adjustments for notifications */
+/* ========================================
+   Responsive Design - Mobile & Tablet
+   ======================================== */
+
+/* Tablet Portrait (768px - 1024px) */
+@media screen and (max-width: 1024px) and (min-width: 769px) {
+    body {
+        grid-template-columns: 70% 30%;
+    }
+
+    .weather-panel {
+        padding: var(--spacing-md);
+        gap: var(--spacing-sm);
+    }
+
+    .weather-header h2 {
+        font-size: var(--font-size-md);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .weather-icon img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .temperature {
+        font-size: 3.5rem;
+    }
+
+    .forecast-icon img {
+        width: 50px;
+        height: 50px;
+    }
+
+    .slide h1 {
+        font-size: 5rem;
+    }
+
+    .slide h2 {
+        font-size: var(--font-size-xl);
+    }
+
+    .slide p {
+        font-size: var(--font-size-md);
+    }
+
+    .slide ul li {
+        font-size: var(--font-size-base);
+    }
+}
+
+/* Mobile & Tablet Portrait (max-width: 768px) */
+@media screen and (max-width: 768px) {
+    body {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto;
+        overflow-y: auto;
+    }
+
+    /* Reorder layout: Weather on top, Content in middle, Footer on bottom */
+    .weather-panel {
+        grid-column: 1;
+        grid-row: 1;
+        border-left: none;
+        border-bottom: 3px solid var(--color-panel-border);
+        max-height: none;
+        overflow-y: visible;
+        padding: var(--spacing-md);
+        gap: var(--spacing-sm);
+    }
+
+    .main-content {
+        grid-column: 1;
+        grid-row: 2;
+        padding: var(--spacing-md);
+    }
+
+    .bottom-panel {
+        grid-column: 1;
+        grid-row: 3;
+    }
+
+    /* Horizontal layout for weather on mobile */
+    .current-weather {
+        padding: var(--spacing-md);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .weather-header h2 {
+        font-size: var(--font-size-base);
+        margin-bottom: var(--spacing-sm);
+    }
+
+    .weather-icon img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .temperature {
+        font-size: 2.5rem;
+        margin: var(--spacing-xs) 0;
+    }
+
+    .weather-description {
+        font-size: var(--font-size-xs);
+    }
+
+    .detail {
+        font-size: var(--font-size-tiny);
+    }
+
+    /* Horizontal scrolling forecast for mobile */
+    .week-forecast {
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        gap: var(--spacing-sm);
+        padding-bottom: var(--spacing-xs);
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .forecast-day {
+        flex-direction: column;
+        min-width: 100px;
+        padding: var(--spacing-sm);
+        text-align: center;
+        gap: var(--spacing-xs);
+    }
+
+    .forecast-day:hover {
+        transform: none;
+    }
+
+    .forecast-day-name {
+        font-size: var(--font-size-tiny);
+    }
+
+    .forecast-icon img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .forecast-temps {
+        font-size: var(--font-size-tiny);
+        text-align: center;
+    }
+
+    /* Adjust slides for mobile */
+    .slideshow-container {
+        padding: var(--spacing-lg);
+    }
+
+    .slide h1 {
+        font-size: 3rem;
+        margin-bottom: var(--spacing-md);
+    }
+
+    .slide h2 {
+        font-size: var(--font-size-lg);
+        margin-bottom: var(--spacing-lg);
+    }
+
+    .slide p {
+        font-size: var(--font-size-sm);
+    }
+
+    .slide ul li {
+        font-size: var(--font-size-xs);
+        margin: var(--spacing-sm) 0;
+        padding-left: var(--spacing-lg);
+    }
+
+    .slide ul li::before {
+        font-size: var(--font-size-base);
+    }
+
+    /* Bottom panel adjustments */
+    .time-date {
+        font-size: var(--font-size-base);
+    }
+
+    .school-name {
+        font-size: var(--font-size-sm);
+    }
+
+    /* Error notifications */
+    .error-notification-container {
+        top: var(--spacing-sm);
+        right: var(--spacing-sm);
+        left: var(--spacing-sm);
+        max-width: none;
+    }
+
+    .error-notification {
+        min-width: auto;
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    .error-notification-message {
+        font-size: var(--font-size-tiny);
+    }
+}
+
+/* Small Mobile (max-width: 480px) */
+@media screen and (max-width: 480px) {
+    body {
+        font-size: 14px;
+    }
+
+    .weather-panel {
+        padding: var(--spacing-sm);
+    }
+
+    .main-content {
+        padding: var(--spacing-sm);
+    }
+
+    .slideshow-container {
+        padding: var(--spacing-md);
+    }
+
+    .slide h1 {
+        font-size: 2rem;
+    }
+
+    .slide h2 {
+        font-size: var(--font-size-md);
+    }
+
+    .slide p {
+        font-size: var(--font-size-xs);
+    }
+
+    .slide ul li {
+        font-size: var(--font-size-xxs);
+        padding-left: var(--spacing-md);
+        margin: var(--spacing-xs) 0;
+    }
+
+    .temperature {
+        font-size: 2rem;
+    }
+
+    .weather-icon img {
+        width: 50px;
+        height: 50px;
+    }
+
+    .forecast-day {
+        min-width: 80px;
+        padding: var(--spacing-xs);
+    }
+
+    .forecast-icon img {
+        width: 35px;
+        height: 35px;
+    }
+
+    .time-date {
+        font-size: var(--font-size-sm);
+    }
+
+    .school-name {
+        font-size: var(--font-size-xs);
+    }
+}
+
+@media screen and (min-width: 2560px) {
+    .error-notification {
+        min-width: 500px;
+        padding: var(--spacing-lg) var(--spacing-xl);
+    }
+
+    .error-notification-icon {
+        font-size: var(--font-size-lg);
+    }
+
+    .error-notification-message {
+        font-size: var(--font-size-base);
+    }
+
+    .error-notification-retry,
+    .error-notification-close {
+        font-size: var(--font-size-xs);
+        padding: 0.7rem var(--spacing-md);
+    }
+}
+
+/* ========================================
+   Weather Alert Banner
+   ======================================== */
+
+.weather-alert-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 99990;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    padding: var(--spacing-md) var(--spacing-lg);
+    display: none;
+    align-items: center;
+    gap: var(--spacing-lg);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    animation: slideDown 0.5s ease-out;
+}
+
+.weather-alert-banner.active {
+    display: flex;
+}
+
+.weather-alert-banner.severe {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.weather-alert-banner.extreme {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    animation: slideDown 0.5s ease-out, pulse 2s infinite;
+}
+
+.weather-alert-banner.moderate {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.weather-alert-banner .alert-icon {
+    font-size: 2.5rem;
+    animation: bounce 1s infinite;
+}
+
+.weather-alert-banner .alert-content {
+    flex: 1;
+}
+
+.weather-alert-banner .alert-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    margin-bottom: 0.25rem;
+}
+
+.weather-alert-banner .alert-description {
+    font-size: 1rem;
+    opacity: 0.9;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 70vw;
+}
+
+.weather-alert-banner .alert-time {
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md);
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* ========================================
+   Bell Schedule Widget
+   ======================================== */
+
+.bell-schedule-widget {
+    display: flex;
+    gap: var(--spacing-lg);
+    background: var(--color-panel-bg);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    margin-right: var(--spacing-lg);
+}
+
+.bell-schedule-widget .bell-current,
+.bell-schedule-widget .bell-next {
+    text-align: center;
+}
+
+.bell-schedule-widget .bell-label {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--spacing-xs);
+}
+
+.bell-schedule-widget .bell-period-name {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent-gold);
+}
+
+.bell-schedule-widget .bell-time-remaining {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+}
+
+.bell-schedule-widget .bell-next-time {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+}
+
+.bell-schedule-widget.in-period .bell-current {
+    border-right: 2px solid var(--color-accent-gold);
+    padding-right: var(--spacing-lg);
+}
+
+.bell-schedule-widget.between-periods .bell-current .bell-period-name {
+    color: var(--color-text-secondary);
+}
+
+/* ========================================
+   Countdown Slide Styles
+   ======================================== */
+
+.countdown-slide {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--spacing-xl);
+}
+
+.countdown-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-sm);
+    text-shadow: var(--shadow-text);
+}
+
+.countdown-event {
+    font-size: var(--font-size-mega);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent-gold);
+    margin-bottom: var(--spacing-xxl);
+    text-shadow: var(--shadow-text-lg);
+}
+
+.countdown-numbers {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-xl);
+    flex-wrap: wrap;
+}
+
+.countdown-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--color-panel-bg);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-radius: var(--radius-xl);
+    min-width: 120px;
+}
+
+.countdown-days {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: var(--spacing-md);
+}
+
+.countdown-days .countdown-value {
+    font-size: 8rem;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent-gold);
+    text-shadow: var(--shadow-text-lg);
+    line-height: 1;
+}
+
+.countdown-days .countdown-label {
+    font-size: var(--font-size-xxl);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    text-shadow: var(--shadow-text);
+}
+
+.countdown-unit .countdown-value {
+    font-size: var(--font-size-mega);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent-gold);
+    text-shadow: var(--shadow-text-lg);
+    line-height: 1;
+}
+
+.countdown-unit .countdown-label {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-xs);
+    text-shadow: var(--shadow-text);
+}
+
+.countdown-reached {
+    font-size: var(--font-size-mega);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent-gold);
+    text-shadow: var(--shadow-text-lg);
+    animation: pulse 2s infinite;
+}
+
+/* Responsive countdown for 4K */
+@media screen and (min-width: 2560px) {
+    .countdown-days .countdown-value {
+        font-size: 12rem;
+    }
+
+    .countdown-unit {
+        min-width: 180px;
+        padding: var(--spacing-xl) var(--spacing-xxl);
+    }
+}
+
+/* Responsive countdown for mobile */
+@media screen and (max-width: 768px) {
+    .countdown-days .countdown-value {
+        font-size: 5rem;
+    }
+
+    .countdown-days .countdown-label {
+        font-size: var(--font-size-lg);
+    }
+
+    .countdown-unit {
+        min-width: 80px;
+        padding: var(--spacing-md) var(--spacing-lg);
+    }
+
+    .countdown-unit .countdown-value {
+        font-size: var(--font-size-xxl);
+    }
+
+    .countdown-event {
+        font-size: var(--font-size-xxl);
+    }
+}
+
+/* ========================================
+   Calendar Events Slide
+   ======================================== */
+
+.calendar-events-slide {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    padding: var(--spacing-xl);
+    height: 100%;
+}
+
+.calendar-events-slide h2 {
+    font-size: var(--font-size-xxl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-xl);
+    text-shadow: var(--shadow-text);
+}
+
+.calendar-events-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    max-width: 800px;
+}
+
+.calendar-event-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-lg);
+    background: var(--color-panel-bg);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-sm);
+    font-size: var(--font-size-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+.calendar-event-item.no-events,
+.calendar-event-item.error {
+    justify-content: center;
+    color: var(--color-text-secondary);
+    font-style: italic;
+}
+
+.calendar-event-placeholder {
+    color: var(--color-text-secondary);
+    font-style: italic;
+    padding: var(--spacing-lg);
+}
+
+.calendar-event-item .event-date {
+    flex-shrink: 0;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent-gold);
+    min-width: 140px;
+    text-align: left;
+}
+
+.calendar-event-item .event-name {
+    flex: 1;
+    text-align: left;
+    font-weight: var(--font-weight-medium);
+}
+
+.calendar-event-item .event-time {
+    flex-shrink: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-base);
+    min-width: 100px;
+    text-align: right;
+}
+
+/* Responsive calendar events for 4K */
+@media screen and (min-width: 2560px) {
+    .calendar-events-list {
+        max-width: 1200px;
+    }
+
+    .calendar-event-item {
+        font-size: var(--font-size-xl);
+        padding: var(--spacing-lg) var(--spacing-xl);
+    }
+
+    .calendar-event-item .event-date {
+        min-width: 200px;
+    }
+}
+
+/* Responsive calendar events for mobile */
+@media screen and (max-width: 768px) {
+    .calendar-event-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+        font-size: var(--font-size-base);
+    }
+
+    .calendar-event-item .event-date {
+        font-size: var(--font-size-sm);
+    }
+
+    .calendar-event-item .event-time {
+        text-align: left;
+    }
+}
+
+/* ========================================
+   Custom Layout Support
+   ======================================== */
+
+/* Fullscreen layout - no sidebar or footer */
+body.fullscreen-layout .weather-panel {
+    display: none;
+}
+
+body.fullscreen-layout .bottom-panel {
+    display: none;
+}
+
+body.fullscreen-layout .main-content {
+    width: 100%;
+    height: 100vh;
+}
+
+body.fullscreen-layout .content-display {
+    height: 100%;
+}
+
+/* No sidebar layout */
+body.no-sidebar .weather-panel {
+    display: none;
+}
+
+body.no-sidebar .main-content {
+    width: 100%;
+}
+
+body.no-sidebar .bottom-panel {
+    width: 100%;
+}
+
+/* No footer layout */
+body.no-footer .bottom-panel {
+    display: none;
+}
+
+body.no-footer .main-content {
+    height: 100vh;
+}
+
+/* Sidebar calendar widget */
+.sidebar-calendar-widget {
+    padding: var(--spacing-md);
+    background: var(--color-panel-bg);
+    border-radius: var(--radius-lg);
+    margin-top: var(--spacing-md);
+}
+
+.sidebar-calendar-widget h3 {
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-sm);
+    color: var(--color-text);
+}
+
+.calendar-events-compact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.calendar-event-compact {
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-xs);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-sm);
+}
+
+.event-date-compact {
+    font-size: var(--font-size-xs);
+    color: var(--color-accent-gold);
+    font-weight: var(--font-weight-bold);
+}
+
+.event-name-compact {
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+}
+
+/* Sidebar clock widget */
+.sidebar-clock-widget {
+    text-align: center;
+    padding: var(--spacing-lg);
+    background: var(--color-panel-bg);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+.sidebar-time {
+    font-size: var(--font-size-xxl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+}
+
+.sidebar-date {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    margin-top: var(--spacing-xs);
+}
+
+/* Dismissal main widget */
+.dismissal-main-widget {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: var(--spacing-xl);
+}
+
+.dismissal-main-widget h2 {
+    font-size: var(--font-size-xxl);
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+    color: var(--color-text);
+}
+
+.dismissal-queue-large {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    overflow-y: auto;
+}
+
+.dismissal-queue-large .student-item {
+    font-size: var(--font-size-xl);
+    padding: var(--spacing-lg);
+    background: var(--color-panel-bg);
+    border-radius: var(--radius-lg);
+    text-align: center;
+}
+
+/* Custom text widget */
+.custom-text-widget {
+    padding: var(--spacing-md);
+    color: var(--color-text);
+}
+
+/* ========================================
+   Reduced Motion Support
+   ======================================== */
+
+/**
+ * Respect user's preference for reduced motion
+ * Disables animations for users with motion sensitivity
+ */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    /* Disable slide animations */
+    @keyframes fadeIn {
+        from { opacity: 1; transform: none; }
+        to { opacity: 1; transform: none; }
+    }
+
+    /* Disable pulse animation */
+    @keyframes pulse {
+        0%, 100% {
+            box-shadow: 0 8px 32px rgba(231, 76, 60, 0.5);
+        }
+        50% {
+            box-shadow: 0 8px 32px rgba(231, 76, 60, 0.5);
+        }
+    }
+
+    /* Disable transitions on interactive elements */
+    .forecast-day,
+    .error-notification,
+    .error-notification-retry,
+    .error-notification-close {
+        transition: none !important;
+    }
+
+    /* Remove transform effects */
+    .forecast-day:hover,
+    .error-notification-retry:hover,
+    .error-notification-close:hover {
+        transform: none !important;
+    }
+}
+
+/* ========================================
+   Custom Layout Styles
+   ======================================== */
+
+/* No sidebar layout - expand main content */
+body.no-sidebar .main-content {
+    width: 100%;
+    grid-column: 1 / -1;
+}
+
+body.no-sidebar .weather-panel {
+    display: none !important;
+}
+
+/* No footer layout - expand content vertically */
+body.no-footer .bottom-panel {
+    display: none !important;
+}
+
+body.no-footer .main-content {
+    height: 100vh;
+}
+
+body.no-footer .weather-panel {
+    height: 100vh;
+}
+
+/* Fullscreen layout - only main content visible */
+body.fullscreen-layout .weather-panel,
+body.fullscreen-layout .bottom-panel {
+    display: none !important;
+}
+
+body.fullscreen-layout .main-content {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+body.fullscreen-layout .content-display {
+    height: 100%;
+    border-radius: 0;
+}
+
+/* Main zone school name overlay */
+.main-school-name-overlay {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.6);
+    padding: 1rem 3rem;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    z-index: 10;
+}
+
+.main-school-name-overlay h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    margin: 0;
+}
+
+/* Main zone clock overlay */
+.main-clock-overlay {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 1rem 2rem;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    z-index: 10;
+    text-align: center;
+}
+
+.main-clock-time {
+    font-size: 3rem;
+    font-weight: 700;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.main-clock-date {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-top: 0.25rem;
+}
+
+/* Sidebar clock widget */
+.sidebar-clock-widget {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.sidebar-time {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+}
+
+.sidebar-date {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 0.5rem;
+}
+
+/* Sidebar calendar widget */
+.sidebar-calendar-widget {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-top: 1.5rem;
+}
+
+.sidebar-calendar-widget h3 {
+    font-size: 1.4rem;
+    color: white;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.calendar-events-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.calendar-event-compact {
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.event-date-compact {
+    font-size: 0.85rem;
+    color: var(--color-accent-gold, #ffd700);
+    font-weight: 600;
+}
+
+.event-name-compact {
+    font-size: 1rem;
+    color: white;
+    margin-top: 0.25rem;
+}
+
+/* Dismissal main widget */
+.dismissal-main-widget {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 2rem;
+}
+
+.dismissal-main-widget h2 {
+    font-size: 3rem;
+    color: white;
+    margin-bottom: 2rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.dismissal-queue-large {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    max-width: 800px;
+}
+
+/* Custom text widget */
+.custom-text-widget {
+    padding: 0.5rem 1rem;
+    color: white;
+}
+
+/* Bell schedule widget in sidebar */
+.bell-schedule-widget {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-top: 1.5rem;
+}
+
+/* Loading and error states */
+.sidebar-calendar-widget .loading,
+.sidebar-calendar-widget .no-events,
+.sidebar-calendar-widget .error {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+    padding: 1rem;
+}
+
+/* ========================================
+   Dashboard Grid Widget Styles
+   ======================================== */
+
+/* Dashboard grid container */
+.dashboard-grid {
+    background: var(--color-bg-gradient-start, #2c3e50);
+    background: linear-gradient(135deg, var(--color-bg-gradient-start, #2c3e50), var(--color-bg-gradient-end, #3498db));
+}
+
+/* Base widget styles */
+.dashboard-widget {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-widget:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Widget placeholder */
+.widget-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1.2rem;
+}
+
+/* Slideshow widget */
+.widget-slideshow {
+    height: 100%;
+    position: relative;
+}
+
+.widget-slideshow .slideshow-container {
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.widget-slideshow .slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    color: white;
+}
+
+.widget-slideshow .slide.active {
+    opacity: 1;
+}
+
+.widget-slideshow .slide h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.widget-slideshow .slide h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.widget-slideshow .slide p {
+    font-size: 1.5rem;
+    opacity: 0.9;
+}
+
+.widget-slideshow .slide ul {
+    list-style: none;
+    text-align: left;
+    font-size: 1.3rem;
+}
+
+.widget-slideshow .slide li {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.widget-slideshow .slide li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--color-accent-gold, #ffd700);
+}
+
+/* Weather widget */
+.widget-weather-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1rem;
+    color: white;
+}
+
+.widget-weather-content .weather-current {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 0;
+}
+
+.widget-weather-content .weather-icon {
+    width: 80px;
+    height: 80px;
+}
+
+.widget-weather-content .weather-temp {
+    font-size: 3rem;
+    font-weight: 700;
+}
+
+.widget-weather-content .weather-desc {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    text-transform: capitalize;
+}
+
+.widget-weather-content .weather-details {
+    display: flex;
+    justify-content: space-around;
+    padding: 1rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    margin-top: 1rem;
+}
+
+.widget-weather-content .weather-detail {
+    text-align: center;
+}
+
+.widget-weather-content .weather-detail .label {
+    font-size: 0.85rem;
+    opacity: 0.7;
+    display: block;
+}
+
+.widget-weather-content .weather-forecast {
+    flex: 1;
+    overflow-y: auto;
+    margin-top: 1rem;
+}
+
+/* Clock widget */
+.widget-clock-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 1rem;
+    color: white;
+}
+
+.widget-clock-content .clock-time {
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.widget-clock-content .clock-date {
+    font-size: 1.2rem;
+    opacity: 0.8;
+    margin-top: 0.5rem;
+}
+
+/* Calendar widget */
+.widget-calendar-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1rem;
+    color: white;
+}
+
+.widget-calendar-content .calendar-header {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.widget-calendar-content .calendar-events {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.widget-calendar-content .calendar-event {
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.widget-calendar-content .event-date {
+    font-size: 0.85rem;
+    color: var(--color-accent-gold, #ffd700);
+    font-weight: 600;
+}
+
+.widget-calendar-content .event-name {
+    font-size: 1rem;
+    margin-top: 0.25rem;
+}
+
+.widget-calendar-content .no-events,
+.widget-calendar-content .loading {
+    text-align: center;
+    opacity: 0.6;
+    padding: 2rem;
+}
+
+/* Bell schedule widget */
+.widget-bell-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 1rem;
+    color: white;
+}
+
+.widget-bell-content .bell-current .period-name {
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.widget-bell-content .bell-current .period-time {
+    font-size: 1.2rem;
+    opacity: 0.8;
+}
+
+.widget-bell-content .bell-countdown {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-top: 1rem;
+    color: var(--color-accent-gold, #ffd700);
+}
+
+/* Dismissal widget */
+.widget-dismissal-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 1rem;
+    color: white;
+}
+
+.widget-dismissal-content .dismissal-header {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+}
+
+.widget-dismissal-content .dismissal-queue {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.widget-dismissal-content .queue-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.widget-dismissal-content .queue-item-highlight {
+    background: rgba(255, 215, 0, 0.2);
+    border-left: 4px solid var(--color-accent-gold, #ffd700);
+}
+
+.widget-dismissal-content .student-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    width: 2.5rem;
+    color: var(--color-accent-gold, #ffd700);
+}
+
+.widget-dismissal-content .student-name {
+    flex: 1;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.widget-dismissal-content .student-grade {
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+.widget-dismissal-content .queue-empty {
+    text-align: center;
+    opacity: 0.6;
+    padding: 2rem;
+}
+
+.widget-dismissal-content .queue-more {
+    text-align: center;
+    padding: 0.5rem;
+    opacity: 0.7;
+    font-style: italic;
+}

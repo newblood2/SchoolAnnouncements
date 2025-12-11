@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Dismissal Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-700: #374151;
+            --gray-900: #111827;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 1rem;
+            color: var(--gray-900);
+        }
+
+        /* Login Screen */
+        .login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 90vh;
+        }
+
+        .login-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-card h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .login-card p {
+            color: var(--gray-700);
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .login-form input {
+            padding: 0.875rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .login-form input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 0.875rem;
+            text-align: center;
+            min-height: 20px;
+        }
+
+        /* Main Container */
+        .dismissal-container {
+            display: none;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .dismissal-container.active {
+            display: block;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .status-badge.inactive {
+            background: var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        .status-badge.active {
+            background: var(--success);
+            color: white;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Input Mode Toggle */
+        .mode-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid var(--gray-200);
+            background: white;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* Voice Input */
+        .voice-input {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        .voice-input.hidden {
+            display: none;
+        }
+
+        .mic-button {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-size: 3rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .mic-button:active {
+            transform: scale(0.95);
+        }
+
+        .mic-button.listening {
+            background: var(--danger);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5);
+            }
+            50% {
+                box-shadow: 0 4px 40px rgba(239, 68, 68, 0.8);
+            }
+        }
+
+        .voice-status {
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: var(--gray-700);
+            min-height: 20px;
+        }
+
+        .transcript {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--gray-50);
+            border-radius: 8px;
+            min-height: 80px;
+            font-size: 1.125rem;
+            line-height: 1.6;
+        }
+
+        .transcript.empty {
+            color: var(--gray-700);
+            font-style: italic;
+        }
+
+        /* Manual Input */
+        .manual-input {
+            display: none;
+        }
+
+        .manual-input.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Poppins', sans-serif;
+            width: 100%;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .btn-group .btn {
+            width: 100%;
+        }
+
+        /* Current Batch */
+        .batch-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .batch-list.empty {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray-700);
+            font-style: italic;
+        }
+
+        .batch-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--gray-50);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .batch-item-info {
+            flex: 1;
+        }
+
+        .batch-item-name {
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+
+        .batch-item-grade {
+            color: var(--gray-700);
+            font-size: 0.875rem;
+        }
+
+        .batch-item-remove {
+            background: none;
+            border: none;
+            color: var(--danger);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+        }
+
+        /* Actions */
+        .actions {
+            margin-top: 1rem;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gray-900);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        /* Timeout Warning */
+        .timeout-warning {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .timeout-warning.show {
+            display: block;
+        }
+
+        .timeout-warning-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeout-warning-text {
+            color: #78350f;
+            font-size: 0.875rem;
+        }
+
+        .timeout-countdown {
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: #b45309;
+        }
+
+        /* Important Notice Banner */
+        .notice-banner {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            border: 2px solid #6366f1;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .notice-banner-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: #4338ca;
+            margin-bottom: 0.5rem;
+        }
+
+        .notice-banner-text {
+            color: #3730a3;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        .notice-banner-text strong {
+            color: #1e1b4b;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-card">
+            <h1>🚗 Dismissal Manager</h1>
+            <p>Enter password to manage dismissal</p>
+            <form id="loginForm" class="login-form">
+                <input type="password" id="passwordInput" placeholder="Enter password" required autocomplete="current-password">
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+            <div id="loginError" class="error-message"></div>
+        </div>
+    </div>
+
+    <!-- Dismissal Manager -->
+    <div id="dismissalContainer" class="dismissal-container">
+        <!-- Important Notice -->
+        <div class="notice-banner">
+            <div class="notice-banner-header">
+                ℹ️ Important Information
+            </div>
+            <div class="notice-banner-text">
+                <strong>Auto-Timeout:</strong> Dismissal mode will automatically end after <strong>2 hours</strong> to prevent displays from being stuck in dismissal mode overnight.<br>
+                <strong>Display Updates:</strong> All connected classroom displays will automatically switch to show the dismissal list when you start, and return to announcements when you end.
+            </div>
+        </div>
+
+        <!-- Timeout Warning (shown when time is running low) -->
+        <div id="timeoutWarning" class="timeout-warning">
+            <div class="timeout-warning-header">
+                ⚠️ Session Expiring Soon
+            </div>
+            <div class="timeout-warning-text">
+                Dismissal will automatically end in <span id="timeoutCountdown" class="timeout-countdown">--:--</span><br>
+                Click "End Dismissal" manually or the session will end automatically.
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>🚗 Dismissal</h1>
+            <div>
+                <span id="statusBadge" class="status-badge inactive">Inactive</span>
+                <span id="sessionTimer" class="status-badge" style="display: none; margin-left: 0.5rem; background: #e0e7ff; color: #4338ca;"></span>
+            </div>
+        </div>
+
+        <!-- Input Card -->
+        <div class="card">
+            <h2>Add Students</h2>
+
+            <!-- Mode Toggle -->
+            <div class="mode-toggle">
+                <button id="voiceModeBtn" class="mode-btn active">🎤 Voice</button>
+                <button id="manualModeBtn" class="mode-btn">⌨️ Manual</button>
+            </div>
+
+            <!-- Voice Input -->
+            <div id="voiceInput" class="voice-input">
+                <button id="micButton" class="mic-button">🎤</button>
+                <div id="voiceStatus" class="voice-status">Tap and hold to speak</div>
+                <div id="transcript" class="transcript empty">Say: "John Smith Grade 3"</div>
+                <div class="btn-group">
+                    <button id="voiceAddBtn" class="btn btn-success" disabled>Add Student</button>
+                    <button id="voiceClearBtn" class="btn btn-danger">Clear</button>
+                </div>
+            </div>
+
+            <!-- Manual Input -->
+            <div id="manualInput" class="manual-input">
+                <div class="form-group">
+                    <label for="studentName">Student Name</label>
+                    <input type="text" id="studentName" placeholder="e.g., John Smith">
+                </div>
+                <div class="form-group">
+                    <label for="studentGrade">Grade</label>
+                    <select id="studentGrade">
+                        <option value="">Select Grade</option>
+                        <option value="Pre-K">Pre-K</option>
+                        <option value="K">Kindergarten</option>
+                        <option value="1">Grade 1</option>
+                        <option value="2">Grade 2</option>
+                        <option value="3">Grade 3</option>
+                        <option value="4">Grade 4</option>
+                        <option value="5">Grade 5</option>
+                        <option value="6">Grade 6</option>
+                        <option value="7">Grade 7</option>
+                        <option value="8">Grade 8</option>
+                        <option value="9">Grade 9</option>
+                        <option value="10">Grade 10</option>
+                        <option value="11">Grade 11</option>
+                        <option value="12">Grade 12</option>
+                    </select>
+                </div>
+                <button id="manualAddBtn" class="btn btn-success">Add Student</button>
+            </div>
+        </div>
+
+        <!-- Current Batch Card -->
+        <div class="card">
+            <h2>Current Batch (<span id="batchCount">0</span>)</h2>
+            <ul id="batchList" class="batch-list empty">
+                No students in current batch
+            </ul>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+            <button id="startDismissalBtn" class="btn btn-success">Start Dismissal</button>
+            <button id="clearBatchBtn" class="btn btn-warning" style="margin-top: 0.5rem;">Clear Batch</button>
+            <button id="endDismissalBtn" class="btn btn-danger" style="margin-top: 0.5rem; display: none;">End Dismissal</button>
+            <button id="logoutBtn" class="btn btn-primary" style="margin-top: 1rem;">Logout</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Configuration -->
+    <script src="config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/settings-api.js"></script>
+    <script src="js/fuzzy-match.js"></script>
+    <script src="dismissal.js"></script>
+</body>
+</html>

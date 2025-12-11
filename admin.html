@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - School Announcements</title>
+    <link rel="stylesheet" href="admin.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Quill Rich Text Editor -->
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <h1>Admin Panel</h1>
+            <p>Enter password to access admin controls</p>
+            <form id="loginForm">
+                <input type="password" id="passwordInput" placeholder="Enter password" required autocomplete="current-password">
+                <button type="submit">Login</button>
+            </form>
+            <div id="loginError" class="error-message"></div>
+        </div>
+    </div>
+
+    <!-- Admin Panel (hidden until logged in) -->
+    <div id="adminPanel" class="admin-panel" style="display: none;">
+        <header class="admin-header">
+            <h1>School Announcements - Admin Panel</h1>
+            <div class="header-actions">
+                <button id="darkModeToggle" class="dark-mode-toggle" title="Toggle dark mode">
+                    <span class="toggle-icon">🌙</span>
+                    <span class="toggle-text">Dark</span>
+                </button>
+                <div id="healthStatus" class="health-status" title="Click to refresh">
+                    <span class="health-indicator"></span>
+                    <span class="health-text">Checking...</span>
+                </div>
+                <a href="index.html" target="_blank" class="btn btn-secondary">Preview Display</a>
+                <button id="logoutBtn" class="btn btn-danger">Logout</button>
+            </div>
+        </header>
+
+        <nav class="admin-nav">
+            <button class="nav-btn active" data-tab="displays">Display Manager</button>
+            <button class="nav-btn emergency-nav-btn" data-tab="emergency">Emergency Alert</button>
+            <button class="nav-btn" data-tab="themes">Color Themes</button>
+            <button class="nav-btn" data-tab="slides">Slide Editor</button>
+            <button class="nav-btn" data-tab="livestream">Livestream</button>
+            <button class="nav-btn" data-tab="bell-schedule">Bell Schedule</button>
+            <button class="nav-btn" data-tab="calendar">Calendar Events</button>
+            <button class="nav-btn" data-tab="roster">Student Roster</button>
+            <button class="nav-btn" data-tab="dismissal-reports">Dismissal Reports</button>
+            <button class="nav-btn" data-tab="analytics">Analytics</button>
+            <button class="nav-btn" data-tab="notifications">Notifications</button>
+            <button class="nav-btn" data-tab="layout">Layout Editor</button>
+            <button class="nav-btn" data-tab="general">General Settings</button>
+            <button class="nav-btn preview-nav-btn" data-tab="preview">Preview</button>
+        </nav>
+
+        <main class="admin-content">
+            <!-- Display Manager Tab -->
+            <section id="displaysTab" class="tab-content active">
+                <h2>Display Manager</h2>
+
+                <div class="section-card display-stats-card">
+                    <div class="display-stats">
+                        <div class="stat-item">
+                            <span class="stat-value" id="totalDisplays">0</span>
+                            <span class="stat-label">Total Displays</span>
+                        </div>
+                        <div class="stat-item stat-online">
+                            <span class="stat-value" id="onlineDisplays">0</span>
+                            <span class="stat-label">Online</span>
+                        </div>
+                        <div class="stat-item stat-offline">
+                            <span class="stat-value" id="offlineDisplays">0</span>
+                            <span class="stat-label">Offline</span>
+                        </div>
+                    </div>
+                    <div class="action-buttons" style="margin-top: 1rem;">
+                        <button id="refreshDisplaysBtn" class="btn btn-primary">Refresh Status</button>
+                        <button id="broadcastRefreshBtn" class="btn btn-secondary">Refresh All Displays</button>
+                        <button id="deleteInactiveBtn" class="btn btn-danger">Delete All Inactive</button>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3>Connected Displays</h3>
+                    <p class="help-text">Real-time status of all registered displays. Click on a display to edit its name and location.</p>
+
+                    <div id="displaysList" class="displays-list">
+                        <div class="displays-loading">Loading displays...</div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3>Broadcast Commands</h3>
+                    <p class="help-text">Send commands to all connected displays simultaneously.</p>
+
+                    <div class="broadcast-commands">
+                        <button id="cmdRefreshAll" class="btn btn-secondary">
+                            <span class="cmd-icon">&#8635;</span> Refresh All
+                        </button>
+                        <button id="cmdReloadAll" class="btn btn-secondary">
+                            <span class="cmd-icon">&#8634;</span> Full Reload
+                        </button>
+                        <button id="cmdClearCache" class="btn btn-secondary">
+                            <span class="cmd-icon">&#128465;</span> Clear Cache
+                        </button>
+                        <button id="cmdTestAlert" class="btn btn-secondary">
+                            <span class="cmd-icon">&#128276;</span> Test Alert
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Emergency Alert Tab -->
+            <section id="emergencyTab" class="tab-content">
+                <h2>Emergency Alert System</h2>
+                <p class="page-description">Instantly broadcast emergency alerts to all connected displays.</p>
+
+                <!-- Alert Status Banner -->
+                <div id="alertStatusBanner" class="alert-status-banner inactive">
+                    <div class="alert-status-icon">✓</div>
+                    <div class="alert-status-text">
+                        <strong>No Active Alert</strong>
+                        <span>All displays showing normal content</span>
+                    </div>
+                </div>
+
+                <!-- Quick Alert Buttons -->
+                <div class="section-card emergency-section">
+                    <h3>Quick Emergency Alerts</h3>
+                    <p class="help-text">One-click emergency broadcasts. These will immediately override all display content.</p>
+
+                    <div class="emergency-buttons">
+                        <button class="emergency-btn lockdown" data-type="lockdown">
+                            <span class="emergency-btn-icon">🔒</span>
+                            <span class="emergency-btn-text">LOCKDOWN</span>
+                        </button>
+                        <button class="emergency-btn evacuation" data-type="evacuation">
+                            <span class="emergency-btn-icon">🚨</span>
+                            <span class="emergency-btn-text">EVACUATION</span>
+                        </button>
+                        <button class="emergency-btn shelter" data-type="shelter">
+                            <span class="emergency-btn-icon">🏠</span>
+                            <span class="emergency-btn-text">SHELTER IN PLACE</span>
+                        </button>
+                        <button class="emergency-btn weather" data-type="weather">
+                            <span class="emergency-btn-icon">⛈️</span>
+                            <span class="emergency-btn-text">SEVERE WEATHER</span>
+                        </button>
+                        <button class="emergency-btn medical" data-type="medical">
+                            <span class="emergency-btn-icon">🏥</span>
+                            <span class="emergency-btn-text">MEDICAL</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Custom Alert -->
+                <div class="section-card">
+                    <h3>Custom Alert</h3>
+                    <p class="help-text">Create a custom emergency message with your own text.</p>
+
+                    <div class="form-group">
+                        <label for="customAlertMessage">Alert Message</label>
+                        <input type="text" id="customAlertMessage" class="form-input" placeholder="ATTENTION ALL STUDENTS" maxlength="50">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="customAlertSubMessage">Instructions (optional)</label>
+                        <input type="text" id="customAlertSubMessage" class="form-input" placeholder="Please follow instructions from staff" maxlength="100">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="customAlertColor">Alert Color</label>
+                            <input type="color" id="customAlertColor" value="#f59e0b">
+                        </div>
+                        <div class="form-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="customAlertFlash">
+                                <span class="toggle-slider"></span>
+                                <span>Flash Effect</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="customAlertSound" checked>
+                                <span class="toggle-slider"></span>
+                                <span>Alert Sound</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button id="sendCustomAlertBtn" class="btn btn-danger btn-large">
+                        <span>⚠️</span> Send Custom Alert
+                    </button>
+                </div>
+
+                <!-- Cancel Alert -->
+                <div class="section-card cancel-alert-section" id="cancelAlertSection" style="display: none;">
+                    <h3>Cancel Active Alert</h3>
+                    <p class="help-text">This will return all displays to normal content.</p>
+                    <button id="cancelAlertBtn" class="btn btn-success btn-large">
+                        <span>✓</span> Cancel Alert & Return to Normal
+                    </button>
+                </div>
+
+                <!-- Alert History -->
+                <div class="section-card">
+                    <h3>Recent Alerts</h3>
+                    <div id="alertHistory" class="alert-history">
+                        <p class="no-alerts">No alerts have been sent this session.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Color Themes Tab -->
+            <section id="themesTab" class="tab-content">
+                <h2>Color Theme Editor</h2>
+
+                <div class="section-card">
+                    <h3>Preset Themes</h3>
+                    <div class="theme-presets">
+                        <button class="theme-preset-btn" data-theme="default">
+                            <div class="theme-preview">
+                                <div style="background: linear-gradient(135deg, #1e3c72, #2a5298);"></div>
+                            </div>
+                            <span>Default Blue</span>
+                        </button>
+                        <button class="theme-preset-btn" data-theme="sunset">
+                            <div class="theme-preview">
+                                <div style="background: linear-gradient(135deg, #fc4a1a, #f7b733);"></div>
+                            </div>
+                            <span>Sunset Orange</span>
+                        </button>
+                        <button class="theme-preset-btn" data-theme="forest">
+                            <div class="theme-preview">
+                                <div style="background: linear-gradient(135deg, #134e5e, #71b280);"></div>
+                            </div>
+                            <span>Forest Green</span>
+                        </button>
+                        <button class="theme-preset-btn" data-theme="purple">
+                            <div class="theme-preview">
+                                <div style="background: linear-gradient(135deg, #667eea, #764ba2);"></div>
+                            </div>
+                            <span>Purple Dream</span>
+                        </button>
+                        <button class="theme-preset-btn" data-theme="ocean">
+                            <div class="theme-preview">
+                                <div style="background: linear-gradient(135deg, #0f2027, #2c5364);"></div>
+                            </div>
+                            <span>Deep Ocean</span>
+                        </button>
+                        <button class="theme-preset-btn" data-theme="crimson">
+                            <div class="theme-preview">
+                                <div style="background: linear-gradient(135deg, #8e2de2, #4a00e0);"></div>
+                            </div>
+                            <span>Royal Crimson</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3>Custom Color Zones</h3>
+                    <p class="help-text">Customize each zone of the display. Changes will be saved to localStorage.</p>
+
+                    <div class="color-zones">
+                        <div class="zone-control">
+                            <label for="bgGradientStart">Background Gradient Start</label>
+                            <div class="color-input-group">
+                                <input type="color" id="bgGradientStart" value="#1e3c72">
+                                <input type="text" id="bgGradientStartText" value="#1e3c72" maxlength="7">
+                            </div>
+                        </div>
+
+                        <div class="zone-control">
+                            <label for="bgGradientEnd">Background Gradient End</label>
+                            <div class="color-input-group">
+                                <input type="color" id="bgGradientEnd" value="#2a5298">
+                                <input type="text" id="bgGradientEndText" value="#2a5298" maxlength="7">
+                            </div>
+                        </div>
+
+                        <div class="zone-control">
+                            <label for="mainContentBg">Main Content Panel Background</label>
+                            <div class="color-input-group">
+                                <input type="color" id="mainContentBg" value="#ffffff">
+                                <input type="range" id="mainContentOpacity" min="0" max="100" value="10">
+                                <span id="mainContentOpacityValue">10%</span>
+                            </div>
+                        </div>
+
+                        <div class="zone-control">
+                            <label for="weatherPanelBg">Weather Panel Background</label>
+                            <div class="color-input-group">
+                                <input type="color" id="weatherPanelBg" value="#000000">
+                                <input type="range" id="weatherPanelOpacity" min="0" max="100" value="30">
+                                <span id="weatherPanelOpacityValue">30%</span>
+                            </div>
+                        </div>
+
+                        <div class="zone-control">
+                            <label for="bottomPanelBg">Bottom Panel Background</label>
+                            <div class="color-input-group">
+                                <input type="color" id="bottomPanelBg" value="#000000">
+                                <input type="range" id="bottomPanelOpacity" min="0" max="100" value="40">
+                                <span id="bottomPanelOpacityValue">40%</span>
+                            </div>
+                        </div>
+
+                        <div class="zone-control">
+                            <label for="accentColor">Accent Color (Gold)</label>
+                            <div class="color-input-group">
+                                <input type="color" id="accentColor" value="#ffd700">
+                                <input type="text" id="accentColorText" value="#ffd700" maxlength="7">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="applyThemeBtn" class="btn btn-primary">Apply Theme</button>
+                        <button id="saveCustomThemeBtn" class="btn btn-success">Save as Custom Theme</button>
+                        <button id="resetThemeBtn" class="btn btn-secondary">Reset to Default</button>
+                    </div>
+
+                    <div id="customThemeSection" class="custom-theme-section" style="display: none;">
+                        <h4>Custom Themes</h4>
+                        <div id="customThemesList" class="custom-themes-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide Editor Tab -->
+            <section id="slidesTab" class="tab-content">
+                <h2>Slide Editor</h2>
+                <p class="page-description">Create and manage your announcement slides. No coding required!</p>
+
+                <!-- Slideshow Tabs -->
+                <div class="slideshow-tabs-container">
+                    <div id="slideshowTabs" class="slideshow-tabs">
+                        <!-- Tabs will be dynamically generated -->
+                    </div>
+                    <button id="addSlideshowBtn" class="btn btn-sm slideshow-add-btn" title="Add new slideshow">+</button>
+                </div>
+
+                <div class="slide-editor-layout">
+                    <!-- Left Panel: Slide List -->
+                    <div class="slide-list-panel">
+                        <div class="panel-header">
+                            <h3>Your Slides</h3>
+                            <button id="addNewSlideBtn" class="btn btn-primary btn-sm">+ Add Slide</button>
+                        </div>
+                        <div id="slideListContainer" class="slide-list-container">
+                            <!-- Slides will be dynamically added here -->
+                        </div>
+                        <div class="slide-list-footer">
+                            <button id="saveSlidesBtn2" class="btn btn-success">Save All Changes</button>
+                            <button id="resetSlidesBtn2" class="btn btn-secondary">Reset to Defaults</button>
+                        </div>
+                    </div>
+
+                    <!-- Right Panel: Slide Editor -->
+                    <div class="slide-editor-panel">
+                        <div id="slideEditorContainer">
+                            <!-- Editor will be dynamically loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tips Section -->
+                <div class="section-card tips-card">
+                    <h4>💡 Tips</h4>
+                    <ul class="tips-list">
+                        <li><strong>Drag & Drop:</strong> Reorder slides by dragging them in the list</li>
+                        <li><strong>Live Preview:</strong> See your changes instantly in the preview area</li>
+                        <li><strong>Save Often:</strong> Click "Save All Changes" to publish to displays</li>
+                        <li><strong>Templates:</strong> Choose from 10 pre-designed slide types for quick creation</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Livestream Tab -->
+            <section id="livestreamTab" class="tab-content">
+                <h2>Livestream Configuration</h2>
+
+                <div class="section-card">
+                    <h3>Livestream Settings</h3>
+
+                    <div class="form-group">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="enableLivestream">
+                            <span class="toggle-slider"></span>
+                            <span>Enable Livestream</span>
+                        </label>
+                        <small>When enabled, the display will show the livestream instead of slides.</small>
+                    </div>
+
+                    <div id="livestreamOptions">
+                        <div class="form-group">
+                            <label for="livestreamUrl">Livestream URL</label>
+                            <input type="text" id="livestreamUrl" placeholder="/stream/mystream/" class="form-input">
+                            <small><strong>Options:</strong><br>
+                            - <strong>MediaMTX (local):</strong> /stream/mystream/ (relative path, include trailing slash)<br>
+                            - <strong>YouTube:</strong> https://www.youtube.com/embed/LIVE_STREAM_ID<br>
+                            - <strong>Vimeo:</strong> https://player.vimeo.com/video/LIVE_ID</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="autoDetectLivestream">
+                                <span class="toggle-slider"></span>
+                                <span>Auto-detect when livestream is online</span>
+                            </label>
+                            <small>Automatically switch to livestream when it goes live, and back to slides when it ends.</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="livestreamCheckInterval">Check Interval (seconds)</label>
+                            <input type="number" id="livestreamCheckInterval" min="10" max="300" value="60" class="form-input">
+                            <small>How often to check if the stream is online (10-300 seconds)</small>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="testStreamBtn" class="btn btn-secondary">Test Stream URL</button>
+                        <button id="saveLivestreamBtn" class="btn btn-success">Save Livestream Settings</button>
+                    </div>
+                </div>
+
+                <!-- OBS Setup Guide -->
+                <div class="section-card">
+                    <h3>OBS Studio Setup Guide (WHIP - Ultra Low Latency)</h3>
+                    <p class="help-text">Stream from OBS using WHIP (WebRTC) for sub-second latency. Much faster than RTMP!</p>
+
+                    <div class="setup-guide">
+                        <h4>Step 1: Configure OBS Stream Settings</h4>
+                        <ol>
+                            <li>Open OBS Studio and go to <strong>Settings > Stream</strong></li>
+                            <li>Set <strong>Service</strong> to <strong>"WHIP"</strong></li>
+                            <li>Set <strong>Server</strong> to: <code>http://YOUR_SERVER_IP:8889/mystream/whip</code></li>
+                            <li>Leave <strong>Bearer Token</strong> empty (no authentication required)</li>
+                            <li>Click <strong>Apply</strong> then <strong>OK</strong></li>
+                        </ol>
+
+                        <h4>Step 2: Configure Output Settings (Recommended)</h4>
+                        <ol>
+                            <li>Go to <strong>Settings > Output</strong></li>
+                            <li>Set <strong>Output Mode</strong> to "Advanced"</li>
+                            <li>Under <strong>Streaming</strong> tab:
+                                <ul>
+                                    <li>Encoder: x264 (or NVENC/QuickSync if available)</li>
+                                    <li>Rate Control: CBR</li>
+                                    <li>Bitrate: 2500-4000 Kbps</li>
+                                    <li>Keyframe Interval: 1 second (for faster seeking)</li>
+                                    <li>Profile: baseline (for best compatibility)</li>
+                                    <li>Tune: zerolatency</li>
+                                </ul>
+                            </li>
+                        </ol>
+
+                        <h4>Step 3: Start Streaming</h4>
+                        <ol>
+                            <li>Click <strong>Start Streaming</strong> in OBS</li>
+                            <li>In this admin panel, set Livestream URL to: <code>/stream/mystream/</code></li>
+                            <li>Enable livestream and save settings</li>
+                            <li>All displays will automatically switch to the livestream!</li>
+                        </ol>
+
+                        <div class="tip-box">
+                            <strong>Why WHIP?</strong> WHIP uses WebRTC which provides:
+                            <ul style="margin: 0.5rem 0 0 1rem;">
+                                <li><strong>Sub-second latency</strong> (vs 5-30 seconds with RTMP)</li>
+                                <li>Real-time streaming perfect for live announcements</li>
+                                <li>Built into OBS 30.0 and newer</li>
+                            </ul>
+                        </div>
+
+                        <div class="tip-box" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #f59e0b; color: #92400e;">
+                            <strong>Example URLs:</strong><br>
+                            <code style="background: #78350f; color: #fef3c7;">http://192.168.1.100:8889/mystream/whip</code> (OBS Server)<br>
+                            <code style="background: #78350f; color: #fef3c7;">/stream/mystream/</code> (Admin Livestream URL)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RTMP Fallback Guide -->
+                <div class="section-card">
+                    <h3>RTMP Fallback (Higher Latency)</h3>
+                    <p class="help-text">Use RTMP only if WHIP doesn't work (older OBS versions). Has 5-30 second delay.</p>
+
+                    <div class="setup-guide">
+                        <h4>RTMP Settings (if needed)</h4>
+                        <ol>
+                            <li>Set <strong>Service</strong> to "Custom..."</li>
+                            <li>Set <strong>Server</strong> to: <code>rtmp://YOUR_SERVER_IP:1935/live</code></li>
+                            <li>Set <strong>Stream Key</strong> to: <code>mystream</code></li>
+                        </ol>
+                        <p style="color: var(--danger-color); font-weight: 500;">Note: RTMP has significant delay. Use WHIP whenever possible.</p>
+                    </div>
+                </div>
+
+                <!-- YouTube Live Setup Guide -->
+                <div class="section-card">
+                    <h3>YouTube Live Setup Guide</h3>
+                    <p class="help-text">Embed a YouTube livestream on your announcement displays.</p>
+
+                    <div class="setup-guide">
+                        <h4>Option A: Using YouTube Live</h4>
+                        <ol>
+                            <li>Go to <a href="https://studio.youtube.com" target="_blank">YouTube Studio</a></li>
+                            <li>Click <strong>Create > Go Live</strong></li>
+                            <li>Set up your stream (title, privacy as "Unlisted" recommended)</li>
+                            <li>Once live, copy the video ID from the URL (the part after <code>v=</code>)</li>
+                            <li>Your Livestream URL will be: <code>https://www.youtube.com/embed/VIDEO_ID?autoplay=1</code></li>
+                        </ol>
+
+                        <h4>Option B: Using an Existing YouTube Live Channel</h4>
+                        <ol>
+                            <li>Find the channel's live stream URL</li>
+                            <li>Get the video ID and use the embed format above</li>
+                            <li>Add <code>?autoplay=1&mute=1</code> for auto-playing without sound</li>
+                        </ol>
+
+                        <div class="tip-box">
+                            <strong>Note:</strong> YouTube embeds require internet access on your display devices.
+                            The local MediaMTX option works on local networks without internet.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Troubleshooting -->
+                <div class="section-card">
+                    <h3>Troubleshooting</h3>
+
+                    <div class="troubleshoot-item">
+                        <h4>Stream not showing?</h4>
+                        <ul>
+                            <li>Check that OBS is actively streaming (look for green "LIVE" indicator)</li>
+                            <li>Verify the stream URL matches your stream key</li>
+                            <li>Try the "Test Stream URL" button to preview in a new window</li>
+                            <li>Check MediaMTX is running: visit <code>http://YOUR_SERVER:8889</code></li>
+                        </ul>
+                    </div>
+
+                    <div class="troubleshoot-item">
+                        <h4>Stream is laggy or buffering?</h4>
+                        <ul>
+                            <li>Lower the bitrate in OBS (try 1500-2000 Kbps)</li>
+                            <li>Use a wired network connection instead of WiFi</li>
+                            <li>Reduce stream resolution (720p is often sufficient for announcements)</li>
+                        </ul>
+                    </div>
+
+                    <div class="troubleshoot-item">
+                        <h4>Auto-detect not working?</h4>
+                        <ul>
+                            <li>Enable "Auto-detect when livestream is online" above</li>
+                            <li>Set check interval to 10-30 seconds for faster detection</li>
+                            <li>The stream must be actively broadcasting for detection to work</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bell Schedule Tab -->
+            <section id="bell-scheduleTab" class="tab-content">
+                <h2>Bell Schedule</h2>
+
+                <div class="section-card">
+                    <h3>Schedule Configuration</h3>
+                    <p class="help-text">Configure your bell schedule to show current and next periods on displays.</p>
+
+                    <div class="form-group">
+                        <label class="checkbox-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="bellScheduleEnabled">
+                            <span>Enable Bell Schedule Display</span>
+                        </label>
+                    </div>
+
+                    <div id="bellScheduleSettings">
+                        <div class="form-group">
+                            <label for="currentScheduleType">Current Schedule</label>
+                            <select id="currentScheduleType" class="form-input">
+                                <option value="regular">Regular Day</option>
+                                <option value="early_release">Early Release</option>
+                                <option value="delay">2-Hour Delay</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card" id="bellSchedulePeriods">
+                    <h3>Periods</h3>
+                    <p class="help-text">Add and configure periods for each schedule type.</p>
+
+                    <div class="form-group">
+                        <label>Schedule Type</label>
+                        <select id="editScheduleType" class="form-input" style="margin-bottom: 1rem;">
+                            <option value="regular">Regular Day</option>
+                            <option value="early_release">Early Release</option>
+                            <option value="delay">2-Hour Delay</option>
+                        </select>
+                    </div>
+
+                    <div id="periodsContainer">
+                        <!-- Periods will be dynamically added here -->
+                    </div>
+
+                    <div class="action-buttons" style="margin-top: 1rem;">
+                        <button id="addPeriodBtn" class="btn btn-primary">+ Add Period</button>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <div class="action-buttons">
+                        <button id="saveBellScheduleBtn" class="btn btn-success">Save Bell Schedule</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Calendar Events Tab -->
+            <section id="calendarTab" class="tab-content">
+                <h2>Calendar Events</h2>
+
+                <div class="section-card">
+                    <h3>Import Events from CSV</h3>
+                    <p class="help-text">Import calendar events from a CSV file. Events will be displayed on the "Upcoming Events" slide.</p>
+
+                    <div class="form-group">
+                        <label>CSV Format</label>
+                        <div style="background: #f3f4f6; padding: 1rem; border-radius: 8px; font-family: monospace; font-size: 0.875rem;">
+                            Date,Event,Time,Description<br>
+                            2024-12-20,Winter Break Begins,,School Closed<br>
+                            2025-01-06,School Resumes,8:00 AM,Welcome Back!<br>
+                            2025-01-15,Parent-Teacher Conf,3:00 PM,Elementary Building
+                        </div>
+                        <small>Date format: YYYY-MM-DD. Time and Description are optional.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="calendarFile">Choose CSV File</label>
+                        <input type="file" id="calendarFile" accept=".csv,text/csv" class="form-input">
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="uploadCalendarBtn" class="btn btn-primary">Import Events</button>
+                        <button id="downloadCalendarTemplateBtn" class="btn btn-secondary">Download CSV Template</button>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3>Upcoming Events (<span id="eventCount">0</span> total)</h3>
+
+                    <div id="eventsList" class="events-list">
+                        <p style="text-align: center; color: #6b7280; padding: 2rem;">No events imported yet</p>
+                    </div>
+
+                    <div class="action-buttons" style="margin-top: 1rem;">
+                        <button id="addEventBtn" class="btn btn-primary">+ Add Event Manually</button>
+                        <button id="clearEventsBtn" class="btn btn-danger">Clear All Events</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Student Roster Tab -->
+            <section id="rosterTab" class="tab-content">
+                <h2>Student Roster</h2>
+
+                <div class="section-card">
+                    <h3>Upload Student List</h3>
+                    <p class="help-text">Upload a CSV file with student names and grades. This helps with auto-correction during dismissal.</p>
+
+                    <div class="form-group">
+                        <label>CSV Format</label>
+                        <div style="background: #f3f4f6; padding: 1rem; border-radius: 8px; font-family: monospace; font-size: 0.875rem;">
+                            Name,Grade<br>
+                            John Smith,3<br>
+                            Sarah Johnson,5<br>
+                            Mike Brown,K<br>
+                            Emily Davis,12
+                        </div>
+                        <small>Two columns: Name, Grade. No header row required. Supports grades K, Pre-K, 1-12.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rosterFile">Choose CSV File</label>
+                        <input type="file" id="rosterFile" accept=".csv,text/csv" class="form-input">
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="uploadRosterBtn" class="btn btn-primary">Upload Roster</button>
+                        <button id="downloadTemplateBtn" class="btn btn-secondary">Download CSV Template</button>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3>Current Roster (<span id="rosterCount">0</span> students)</h3>
+
+                    <div class="form-group">
+                        <input type="text" id="rosterSearch" class="form-input" placeholder="Search students...">
+                    </div>
+
+                    <div id="rosterList" class="roster-list">
+                        <p style="text-align: center; color: #6b7280; padding: 2rem;">No roster uploaded yet</p>
+                    </div>
+
+                    <div class="action-buttons" style="margin-top: 1rem;">
+                        <button id="clearRosterBtn" class="btn btn-danger">Clear All Students</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dismissal Reports Tab -->
+            <section id="dismissal-reportsTab" class="tab-content">
+                <h2>Dismissal Reports</h2>
+
+                <div class="section-card">
+                    <h3>Summary Statistics</h3>
+                    <div class="dismissal-stats">
+                        <div class="stat-item">
+                            <span class="stat-value" id="totalDismissals">0</span>
+                            <span class="stat-label">Total Dismissals</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="uniqueStudentsDismissed">0</span>
+                            <span class="stat-label">Unique Students</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="dismissalDays">0</span>
+                            <span class="stat-label">Days with Dismissals</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3>Filter & Export</h3>
+                    <p class="help-text">Filter dismissal history by date range and grade, then export to CSV.</p>
+
+                    <div class="form-row" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <div class="form-group" style="flex: 1; min-width: 150px;">
+                            <label for="dismissalStartDate">Start Date</label>
+                            <input type="date" id="dismissalStartDate" class="form-input">
+                        </div>
+                        <div class="form-group" style="flex: 1; min-width: 150px;">
+                            <label for="dismissalEndDate">End Date</label>
+                            <input type="date" id="dismissalEndDate" class="form-input">
+                        </div>
+                        <div class="form-group" style="flex: 1; min-width: 150px;">
+                            <label for="dismissalGradeFilter">Grade</label>
+                            <select id="dismissalGradeFilter" class="form-input">
+                                <option value="">All Grades</option>
+                                <option value="Pre-K">Pre-K</option>
+                                <option value="K">Kindergarten</option>
+                                <option value="1">Grade 1</option>
+                                <option value="2">Grade 2</option>
+                                <option value="3">Grade 3</option>
+                                <option value="4">Grade 4</option>
+                                <option value="5">Grade 5</option>
+                                <option value="6">Grade 6</option>
+                                <option value="7">Grade 7</option>
+                                <option value="8">Grade 8</option>
+                                <option value="9">Grade 9</option>
+                                <option value="10">Grade 10</option>
+                                <option value="11">Grade 11</option>
+                                <option value="12">Grade 12</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="filterDismissalsBtn" class="btn btn-primary">Apply Filter</button>
+                        <button id="exportDismissalsBtn" class="btn btn-success">Export to CSV</button>
+                        <button id="clearDismissalHistoryBtn" class="btn btn-danger">Clear History</button>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3>Grade Breakdown</h3>
+                    <div id="gradeBreakdownChart" class="grade-breakdown">
+                        <p style="text-align: center; color: #6b7280; padding: 1rem;">No data available</p>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3>Recent Dismissals</h3>
+                    <div id="dismissalHistoryTable" class="dismissal-history-table">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid #e5e7eb;">
+                                    <th style="text-align: left; padding: 0.75rem;">Date</th>
+                                    <th style="text-align: left; padding: 0.75rem;">Student Name</th>
+                                    <th style="text-align: left; padding: 0.75rem;">Grade</th>
+                                    <th style="text-align: left; padding: 0.75rem;">Called At</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dismissalHistoryBody">
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: #6b7280; padding: 2rem;">No dismissal records found</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="dismissalPagination" class="pagination" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1rem;">
+                        <!-- Pagination controls will be inserted here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Tab -->
+            <section id="analyticsTab" class="tab-content">
+                <h2>Analytics Dashboard</h2>
+                <p class="page-description">Track display usage, slide views, and system performance.</p>
+
+                <div class="section-card analytics-overview-card">
+                    <h3>Overview</h3>
+                    <div class="analytics-stats">
+                        <div class="stat-item">
+                            <span class="stat-value" id="totalSlideViews">0</span>
+                            <span class="stat-label">Total Slide Views</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="activeDisplaysToday">0</span>
+                            <span class="stat-label">Active Displays Today</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="avgViewsPerDisplay">0</span>
+                            <span class="stat-label">Avg Views/Display</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="uptimePercentage">0%</span>
+                            <span class="stat-label">Uptime</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3>Date Range</h3>
+                    <div class="form-row" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+                        <div class="form-group" style="flex: 1; min-width: 150px;">
+                            <label for="analyticsStartDate">Start Date</label>
+                            <input type="date" id="analyticsStartDate" class="form-input">
+                        </div>
+                        <div class="form-group" style="flex: 1; min-width: 150px;">
+                            <label for="analyticsEndDate">End Date</label>
+                            <input type="date" id="analyticsEndDate" class="form-input">
+                        </div>
+                        <button id="loadAnalyticsBtn" class="btn btn-primary">Load Analytics</button>
+                        <button id="exportAnalyticsBtn" class="btn btn-success">Export CSV</button>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3>Slide Performance</h3>
+                    <p class="help-text">View counts for each slide. Higher numbers indicate more engagement.</p>
+                    <div id="slidePerformanceChart" class="analytics-chart">
+                        <p style="text-align: center; color: #6b7280; padding: 2rem;">No analytics data yet. Views are tracked automatically.</p>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3>Hourly Activity</h3>
+                    <p class="help-text">Display activity by hour of day. Helps identify peak usage times.</p>
+                    <div id="hourlyActivityChart" class="analytics-chart hourly-chart">
+                        <p style="text-align: center; color: #6b7280; padding: 2rem;">Loading hourly data...</p>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3>Display Activity Log</h3>
+                    <p class="help-text">Recent display connections and disconnections.</p>
+                    <div id="displayActivityLog" class="activity-log">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 2px solid #e5e7eb;">
+                                    <th style="text-align: left; padding: 0.75rem;">Time</th>
+                                    <th style="text-align: left; padding: 0.75rem;">Display</th>
+                                    <th style="text-align: left; padding: 0.75rem;">Event</th>
+                                </tr>
+                            </thead>
+                            <tbody id="activityLogBody">
+                                <tr>
+                                    <td colspan="3" style="text-align: center; color: #6b7280; padding: 2rem;">No activity logged yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3>Data Management</h3>
+                    <p class="help-text">Analytics data is stored locally. Clear old data to free up space.</p>
+                    <div class="action-buttons">
+                        <button id="clearOldAnalyticsBtn" class="btn btn-secondary">Clear Data Older Than 30 Days</button>
+                        <button id="clearAllAnalyticsBtn" class="btn btn-danger">Clear All Analytics</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Notifications Tab -->
+            <section id="notificationsTab" class="tab-content">
+                <h2>Parent Notifications</h2>
+                <p class="page-description">Configure email and SMS notifications to parents for dismissals and alerts.</p>
+
+                <div class="section-card">
+                    <h3>Notification Settings</h3>
+
+                    <div class="notification-toggles">
+                        <div class="toggle-row">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="notificationsEnabled">
+                                <span class="toggle-slider"></span>
+                                <span>Enable Parent Notifications</span>
+                            </label>
+                            <small>Master toggle for all notifications</small>
+                        </div>
+
+                        <div class="toggle-row" style="margin-top: 1rem;">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="emailNotificationsEnabled">
+                                <span class="toggle-slider"></span>
+                                <span>Email Notifications</span>
+                            </label>
+                            <small>Send notifications via email</small>
+                        </div>
+
+                        <div class="toggle-row" style="margin-top: 1rem;">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="smsNotificationsEnabled">
+                                <span class="toggle-slider"></span>
+                                <span>SMS Notifications</span>
+                            </label>
+                            <small>Send notifications via SMS (requires Twilio)</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3>Email Configuration</h3>
+                    <p class="help-text">Configure SMTP settings for sending email notifications.</p>
+
+                    <div class="form-group">
+                        <label for="smtpHost">SMTP Host</label>
+                        <input type="text" id="smtpHost" class="form-input" placeholder="smtp.gmail.com">
+                    </div>
+
+                    <div class="form-row" style="display: flex; gap: 1rem;">
+                        <div class="form-group" style="flex: 2;">
+                            <label for="smtpPort">SMTP Port</label>
+                            <input type="number" id="smtpPort" class="form-input" placeholder="587">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label class="toggle-label" style="margin-top: 2rem;">
+                                <input type="checkbox" id="smtpSecure">
+                                <span>Use SSL/TLS</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="smtpUser">SMTP Username</label>
+                        <input type="text" id="smtpUser" class="form-input" placeholder="your-email@gmail.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="smtpPassword">SMTP Password / App Password</label>
+                        <input type="password" id="smtpPassword" class="form-input" placeholder="Enter password">
+                        <small>For Gmail, use an App Password instead of your regular password</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="emailFromName">From Name</label>
+                        <input type="text" id="emailFromName" class="form-input" placeholder="School Announcements">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="emailFromAddress">From Address</label>
+                        <input type="email" id="emailFromAddress" class="form-input" placeholder="noreply@school.edu">
+                    </div>
+
+                    <button id="testEmailBtn" class="btn btn-secondary">Send Test Email</button>
+                </div>
+
+                <div class="section-card">
+                    <h3>SMS Configuration (Twilio)</h3>
+                    <p class="help-text">Configure Twilio settings for sending SMS notifications.</p>
+
+                    <div class="form-group">
+                        <label for="twilioAccountSid">Account SID</label>
+                        <input type="text" id="twilioAccountSid" class="form-input" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="twilioAuthToken">Auth Token</label>
+                        <input type="password" id="twilioAuthToken" class="form-input" placeholder="Enter auth token">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="twilioPhoneNumber">Twilio Phone Number</label>
+                        <input type="tel" id="twilioPhoneNumber" class="form-input" placeholder="+1234567890">
+                    </div>
+
+                    <button id="testSmsBtn" class="btn btn-secondary">Send Test SMS</button>
+                </div>
+
+                <div class="section-card">
+                    <h3>Notification Triggers</h3>
+                    <p class="help-text">Choose when to send notifications to parents.</p>
+
+                    <div class="notification-triggers">
+                        <div class="toggle-row">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="notifyOnDismissal" checked>
+                                <span class="toggle-slider"></span>
+                                <span>Notify when student is called for dismissal</span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-row" style="margin-top: 0.75rem;">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="notifyOnEmergency">
+                                <span class="toggle-slider"></span>
+                                <span>Notify on emergency alerts</span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-row" style="margin-top: 0.75rem;">
+                            <label class="toggle-label">
+                                <input type="checkbox" id="notifyOnWeatherAlert">
+                                <span class="toggle-slider"></span>
+                                <span>Notify on weather alerts</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card">
+                    <h3>Message Templates</h3>
+                    <p class="help-text">Customize notification message templates. Use {studentName}, {grade}, {time}, {schoolName} as placeholders.</p>
+
+                    <div class="form-group">
+                        <label for="dismissalTemplate">Dismissal Message</label>
+                        <textarea id="dismissalTemplate" class="form-input" rows="3" placeholder="Your child {studentName} has been called for dismissal at {time}.">{studentName} has been called for dismissal at {time}. Please proceed to the designated pickup area.</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="emergencyTemplate">Emergency Alert Message</label>
+                        <textarea id="emergencyTemplate" class="form-input" rows="3" placeholder="Emergency alert...">{schoolName} Emergency Alert: {message}</textarea>
+                    </div>
+                </div>
+
+                <div class="action-buttons" style="margin-top: 1rem;">
+                    <button id="saveNotificationSettingsBtn" class="btn btn-primary">Save Notification Settings</button>
+                </div>
+            </section>
+
+            <!-- Layout Editor Tab -->
+            <section id="layoutTab" class="tab-content">
+                <h2>Dashboard Layout Editor</h2>
+                <p class="page-description">Design your homepage dashboard with drag-and-drop widgets on a 12-column grid.</p>
+
+                <!-- The layout editor content is dynamically generated by admin-layout.js -->
+                <div id="layoutContent">
+                    <p style="text-align: center; color: #6b7280; padding: 2rem;">Loading layout editor...</p>
+                </div>
+            </section>
+
+            <!-- General Settings Tab -->
+            <section id="generalTab" class="tab-content">
+                <h2>General Settings</h2>
+
+                <div class="section-card">
+                    <h3>Display Settings</h3>
+
+                    <div class="form-group">
+                        <label for="schoolName">School Name</label>
+                        <input type="text" id="schoolName" class="form-input" placeholder="Enter school name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="slideshowInterval">Slideshow Interval (seconds)</label>
+                        <input type="number" id="slideshowInterval" min="3" max="60" value="8" class="form-input">
+                        <small>Time each slide displays (3-60 seconds)</small>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="saveGeneralBtn" class="btn btn-success">Save General Settings</button>
+                    </div>
+                </div>
+
+                <!-- Display Schedule -->
+                <div class="section-card">
+                    <h3>Display Schedule</h3>
+                    <p class="help-text">Automatically turn displays on/off based on time and day. Displays will show a message when off.</p>
+
+                    <div class="form-group">
+                        <label class="checkbox-label" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="scheduleEnabled">
+                            <span>Enable Display Schedule</span>
+                        </label>
+                    </div>
+
+                    <div id="scheduleSettings" style="display: none;">
+                        <div class="form-row" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <div class="form-group" style="flex: 1; min-width: 150px;">
+                                <label for="scheduleStartTime">Display On Time</label>
+                                <input type="time" id="scheduleStartTime" class="form-input" value="07:00">
+                            </div>
+                            <div class="form-group" style="flex: 1; min-width: 150px;">
+                                <label for="scheduleEndTime">Display Off Time</label>
+                                <input type="time" id="scheduleEndTime" class="form-input" value="17:00">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Active Days</label>
+                            <div class="days-of-week-selector" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <label class="day-checkbox" style="display: flex; align-items: center; gap: 0.25rem; padding: 0.5rem 1rem; background: #f3f4f6; border-radius: 8px; cursor: pointer;">
+                                    <input type="checkbox" class="schedule-day" value="0">
+                                    <span>Sun</span>
+                                </label>
+                                <label class="day-checkbox" style="display: flex; align-items: center; gap: 0.25rem; padding: 0.5rem 1rem; background: #f3f4f6; border-radius: 8px; cursor: pointer;">
+                                    <input type="checkbox" class="schedule-day" value="1" checked>
+                                    <span>Mon</span>
+                                </label>
+                                <label class="day-checkbox" style="display: flex; align-items: center; gap: 0.25rem; padding: 0.5rem 1rem; background: #f3f4f6; border-radius: 8px; cursor: pointer;">
+                                    <input type="checkbox" class="schedule-day" value="2" checked>
+                                    <span>Tue</span>
+                                </label>
+                                <label class="day-checkbox" style="display: flex; align-items: center; gap: 0.25rem; padding: 0.5rem 1rem; background: #f3f4f6; border-radius: 8px; cursor: pointer;">
+                                    <input type="checkbox" class="schedule-day" value="3" checked>
+                                    <span>Wed</span>
+                                </label>
+                                <label class="day-checkbox" style="display: flex; align-items: center; gap: 0.25rem; padding: 0.5rem 1rem; background: #f3f4f6; border-radius: 8px; cursor: pointer;">
+                                    <input type="checkbox" class="schedule-day" value="4" checked>
+                                    <span>Thu</span>
+                                </label>
+                                <label class="day-checkbox" style="display: flex; align-items: center; gap: 0.25rem; padding: 0.5rem 1rem; background: #f3f4f6; border-radius: 8px; cursor: pointer;">
+                                    <input type="checkbox" class="schedule-day" value="5" checked>
+                                    <span>Fri</span>
+                                </label>
+                                <label class="day-checkbox" style="display: flex; align-items: center; gap: 0.25rem; padding: 0.5rem 1rem; background: #f3f4f6; border-radius: 8px; cursor: pointer;">
+                                    <input type="checkbox" class="schedule-day" value="6">
+                                    <span>Sat</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="scheduleOffMessage">Off-Hours Message</label>
+                            <input type="text" id="scheduleOffMessage" class="form-input" value="Display is currently off" placeholder="Message shown when display is off">
+                        </div>
+                    </div>
+
+                    <div class="action-buttons" style="margin-top: 1rem;">
+                        <button id="saveScheduleBtn" class="btn btn-success">Save Schedule</button>
+                    </div>
+                </div>
+
+                <!-- Features Toggle -->
+                <div class="section-card">
+                    <h3>Feature Toggles</h3>
+                    <p style="color: #6b7280; margin-bottom: 1rem;">Enable or disable features to simplify the interface.</p>
+
+                    <table class="features-table" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #e5e7eb;">
+                                <th style="text-align: left; padding: 0.75rem;">Feature</th>
+                                <th style="text-align: left; padding: 0.75rem;">Description</th>
+                                <th style="text-align: center; padding: 0.75rem;">Enabled</th>
+                            </tr>
+                        </thead>
+                        <tbody id="featuresTableBody">
+                            <tr style="border-bottom: 1px solid #e5e7eb;">
+                                <td style="padding: 0.75rem; font-weight: 500;">Weather Widget</td>
+                                <td style="padding: 0.75rem; color: #6b7280;">Show weather on displays</td>
+                                <td style="padding: 0.75rem; text-align: center;">
+                                    <input type="checkbox" id="featureWeather" checked class="feature-toggle">
+                                </td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e5e7eb;">
+                                <td style="padding: 0.75rem; font-weight: 500;">Bell Schedule</td>
+                                <td style="padding: 0.75rem; color: #6b7280;">Show current class period</td>
+                                <td style="padding: 0.75rem; text-align: center;">
+                                    <input type="checkbox" id="featureBellSchedule" class="feature-toggle">
+                                </td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e5e7eb;">
+                                <td style="padding: 0.75rem; font-weight: 500;">Weather Alerts</td>
+                                <td style="padding: 0.75rem; color: #6b7280;">Show severe weather warnings</td>
+                                <td style="padding: 0.75rem; text-align: center;">
+                                    <input type="checkbox" id="featureWeatherAlerts" class="feature-toggle">
+                                </td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e5e7eb;">
+                                <td style="padding: 0.75rem; font-weight: 500;">Display Groups</td>
+                                <td style="padding: 0.75rem; color: #6b7280;">Tag-based content filtering</td>
+                                <td style="padding: 0.75rem; text-align: center;">
+                                    <input type="checkbox" id="featureDisplayGroups" class="feature-toggle">
+                                </td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e5e7eb;">
+                                <td style="padding: 0.75rem; font-weight: 500;">Parent Notifications</td>
+                                <td style="padding: 0.75rem; color: #6b7280;">Email/SMS on dismissal</td>
+                                <td style="padding: 0.75rem; text-align: center;">
+                                    <input type="checkbox" id="featureParentNotifications" class="feature-toggle">
+                                </td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e5e7eb;">
+                                <td style="padding: 0.75rem; font-weight: 500;">Display Schedule</td>
+                                <td style="padding: 0.75rem; color: #6b7280;">Auto on/off during hours</td>
+                                <td style="padding: 0.75rem; text-align: center;">
+                                    <input type="checkbox" id="featureDisplaySchedule" class="feature-toggle">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0.75rem; font-weight: 500;">Livestream</td>
+                                <td style="padding: 0.75rem; color: #6b7280;">OBS/YouTube streaming</td>
+                                <td style="padding: 0.75rem; text-align: center;">
+                                    <input type="checkbox" id="featureLivestream" checked class="feature-toggle">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="action-buttons" style="margin-top: 1rem;">
+                        <button id="saveFeaturesBtn" class="btn btn-success">Save Feature Settings</button>
+                    </div>
+                </div>
+
+                <!-- Backup & Restore -->
+                <div class="section-card">
+                    <h3>Backup & Restore</h3>
+                    <p style="color: #6b7280; margin-bottom: 1rem;">Download a backup of all settings, or restore from a previous backup.</p>
+
+                    <div class="action-buttons" style="gap: 1rem; flex-wrap: wrap;">
+                        <button id="downloadBackupBtn" class="btn btn-primary">
+                            Download Backup
+                        </button>
+                        <label class="btn btn-secondary" style="cursor: pointer;">
+                            Restore from Backup
+                            <input type="file" id="restoreBackupFile" accept=".json" style="display: none;">
+                        </label>
+                    </div>
+
+                    <div id="backupStatus" style="margin-top: 1rem; display: none;"></div>
+                </div>
+            </section>
+
+            <!-- Preview Tab -->
+            <section id="previewTab" class="tab-content">
+                <h2>Live Preview</h2>
+                <p class="page-description">Preview how your announcements will appear on the display.</p>
+
+                <div class="preview-controls">
+                    <button class="btn btn-primary" id="refreshPreviewBtn">
+                        Refresh Preview
+                    </button>
+                    <button class="btn btn-secondary" id="openFullPreviewBtn">
+                        Open Full Screen Preview
+                    </button>
+                    <button class="btn btn-secondary" id="openNewTabBtn">
+                        Open in New Tab
+                    </button>
+                </div>
+
+                <div class="section-card preview-section">
+                    <h3>Preview Window</h3>
+                    <p class="help-text">This shows a scaled-down view of your announcement display.</p>
+
+                    <div class="preview-container">
+                        <iframe id="previewFrame" src="/" title="Announcement Preview"></iframe>
+                    </div>
+                </div>
+
+                <div class="section-card tips-card">
+                    <h4>Preview Tips</h4>
+                    <ul class="tips-list">
+                        <li>Changes in other tabs are automatically reflected after saving</li>
+                        <li>Click "Refresh Preview" to see the latest changes</li>
+                        <li>"Open Full Screen" shows the display as it will appear on TVs</li>
+                        <li>Use "Open in New Tab" to test on a separate monitor</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+
+        <!-- Full Screen Preview Modal -->
+        <div id="fullPreviewModal" class="fullscreen-preview-modal" style="display: none;">
+            <div class="fullscreen-preview-header">
+                <span>Full Screen Preview</span>
+                <button class="btn btn-danger btn-sm" id="closeFullPreviewBtn">Close Preview (ESC)</button>
+            </div>
+            <iframe id="fullPreviewFrame" src="/" title="Full Screen Preview"></iframe>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <!-- Quill Rich Text Editor -->
+    <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+
+    <!-- Configuration -->
+    <script src="config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/settings-api.js"></script>
+    <script src="admin.js"></script>
+    <script src="admin-api-adapter.js"></script>
+    <script src="admin-roster.js"></script>
+    <script src="admin-displays.js"></script>
+    <script src="admin-slides.js"></script>
+    <script src="admin-emergency.js"></script>
+    <script src="admin-dismissal-reports.js"></script>
+    <script src="admin-bell-schedule.js"></script>
+    <script src="admin-calendar.js"></script>
+    <script src="admin-analytics.js"></script>
+    <script src="admin-notifications.js"></script>
+    <script src="admin-layout.js"></script>
+
+    <!-- Dark Mode Toggle -->
+    <script>
+    (function() {
+        // Initialize dark mode from localStorage
+        const savedTheme = localStorage.getItem('adminTheme');
+        if (savedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+        }
+
+        // Update toggle button state
+        function updateToggleButton() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const toggleBtn = document.getElementById('darkModeToggle');
+            if (toggleBtn) {
+                const icon = toggleBtn.querySelector('.toggle-icon');
+                const text = toggleBtn.querySelector('.toggle-text');
+                if (icon) icon.textContent = isDark ? '☀️' : '🌙';
+                if (text) text.textContent = isDark ? 'Light' : 'Dark';
+            }
+        }
+
+        // Toggle dark mode
+        function toggleDarkMode() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            if (isDark) {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('adminTheme', 'light');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('adminTheme', 'dark');
+            }
+            updateToggleButton();
+        }
+
+        // Set up event listener when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            updateToggleButton();
+            const toggleBtn = document.getElementById('darkModeToggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', toggleDarkMode);
+            }
+        });
+
+        // Also update immediately if DOM is already loaded
+        if (document.readyState !== 'loading') {
+            updateToggleButton();
+        }
+    })();
+    </script>
+</body>
+</html>
