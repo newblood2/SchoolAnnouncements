@@ -1,18 +1,17 @@
 # Combined All-in-One Dockerfile
 # Includes: Node.js API + Static Files + MediaMTX Streaming Server
 
+# Stage 1: Get MediaMTX from official image
+FROM bluenviron/mediamtx:latest AS mediamtx
+
+# Stage 2: Build the application
 FROM node:18-alpine
 
-# Install dependencies for MediaMTX and process management
-RUN apk add --no-cache curl supervisor
+# Install supervisor and curl (for health checks)
+RUN apk add --no-cache supervisor curl
 
-# Download MediaMTX (hardcoded version for reliability)
-RUN curl -L -o /tmp/mediamtx.tar.gz "https://github.com/bluenviron/mediamtx/releases/download/v1.9.3/mediamtx_v1.9.3_linux_amd64.tar.gz" \
-    && cd /tmp \
-    && tar -xzf mediamtx.tar.gz \
-    && mv mediamtx /usr/local/bin/ \
-    && chmod +x /usr/local/bin/mediamtx \
-    && rm -rf /tmp/mediamtx*
+# Copy MediaMTX binary from official image
+COPY --from=mediamtx /mediamtx /usr/local/bin/mediamtx
 
 WORKDIR /app
 
