@@ -49,34 +49,8 @@ RUN echo '{}' > /app/data/settings.json && \
     echo '{}' > /app/data/dismissal-history.json && \
     echo '{}' > /app/data/analytics.json
 
-# Create supervisord configuration
-RUN mkdir -p /etc/supervisor.d
-RUN cat > /etc/supervisor.d/services.ini << 'EOF'
-[supervisord]
-nodaemon=true
-logfile=/dev/stdout
-logfile_maxbytes=0
-pidfile=/var/run/supervisord.pid
-
-[program:nodejs]
-command=node /app/server.js
-directory=/app
-autostart=true
-autorestart=true
-stdout_logfile=/dev/stdout
-stdout_logfile_maxbytes=0
-stderr_logfile=/dev/stderr
-stderr_logfile_maxbytes=0
-
-[program:mediamtx]
-command=/usr/local/bin/mediamtx /etc/mediamtx.yml
-autostart=true
-autorestart=true
-stdout_logfile=/dev/stdout
-stdout_logfile_maxbytes=0
-stderr_logfile=/dev/stderr
-stderr_logfile_maxbytes=0
-EOF
+# Copy supervisord configuration
+COPY supervisord.conf /etc/supervisord.conf
 
 # Environment variables
 ENV PORT=8080
@@ -97,4 +71,4 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
     CMD wget --quiet --tries=1 --spider http://localhost:8080/api/health || exit 1
 
 # Start supervisord (manages both Node.js and MediaMTX)
-CMD ["supervisord", "-c", "/etc/supervisor.d/services.ini"]
+CMD ["supervisord", "-c", "/etc/supervisord.conf"]
