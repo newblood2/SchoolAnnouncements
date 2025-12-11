@@ -31,15 +31,12 @@ COPY dismissal.html ./public/
 COPY stream-viewer.html ./public/
 COPY styles.css ./public/
 COPY admin.css ./public/
-COPY config.js ./public/
-COPY config.example.js ./public/
-COPY service-worker.js ./public/
 
-# Copy JavaScript files
+# Copy all root JS files (config, admin, dismissal, service-worker, etc.)
+COPY *.js ./public/
+
+# Copy JS module files
 COPY js/ ./public/js/
-
-# Copy admin JS files (they're in root and referenced without js/ prefix)
-COPY admin*.js ./public/
 
 # Copy MediaMTX configuration
 COPY streaming-server/mediamtx.yml /etc/mediamtx.yml
@@ -74,7 +71,7 @@ EXPOSE 8080 8889 1935 8189 8189/udp 8888
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://localhost:8080/api/health || exit 1
+    CMD curl -f http://localhost:8080/api/health || exit 1
 
 # Start via entrypoint (properly passes environment variables)
 CMD ["/entrypoint.sh"]
