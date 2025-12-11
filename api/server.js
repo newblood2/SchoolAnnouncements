@@ -33,11 +33,18 @@ const {
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const SETTINGS_FILE = path.join(__dirname, 'settings.json');
-const DISPLAYS_FILE = path.join(__dirname, 'displays.json');
-const CREDENTIALS_FILE = path.join(__dirname, 'credentials.json');
-const UPLOADS_DIR = path.join(__dirname, 'uploads');
-const DISMISSAL_HISTORY_FILE = path.join(__dirname, 'dismissal-history.json');
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+const SETTINGS_FILE = path.join(DATA_DIR, 'settings.json');
+const DISPLAYS_FILE = path.join(DATA_DIR, 'displays.json');
+const CREDENTIALS_FILE = path.join(DATA_DIR, 'credentials.json');
+const UPLOADS_DIR = process.env.PUBLIC_DIR ? path.join(process.env.PUBLIC_DIR, 'uploads') : path.join(__dirname, 'uploads');
+const DISMISSAL_HISTORY_FILE = path.join(DATA_DIR, 'dismissal-history.json');
+const ANALYTICS_FILE = path.join(DATA_DIR, 'analytics.json');
+
+// Ensure data directory exists
+if (DATA_DIR !== __dirname && !fsSync.existsSync(DATA_DIR)) {
+    fsSync.mkdirSync(DATA_DIR, { recursive: true });
+}
 
 // Ensure uploads directory exists
 if (!fsSync.existsSync(UPLOADS_DIR)) {
@@ -154,6 +161,14 @@ app.use(securityHeaders({
 
 // Apply general rate limiting to all routes
 app.use(generalRateLimiter.middleware());
+
+// Serve static files if PUBLIC_DIR is set (combined mode)
+const PUBLIC_DIR = process.env.PUBLIC_DIR;
+if (PUBLIC_DIR && fsSync.existsSync(PUBLIC_DIR)) {
+    app.use(express.static(PUBLIC_DIR));
+    app.use('/uploads', express.static(path.join(PUBLIC_DIR, 'uploads')));
+    app.use('/slides', express.static(path.join(PUBLIC_DIR, 'slides')));
+}
 
 /**
  * Generate a secure session token

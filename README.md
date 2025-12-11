@@ -48,20 +48,15 @@ A modern, real-time digital signage system designed for schools. Display announc
 
 ### Main Display
 *Screenshot of the main announcement display*
-<img width="2556" height="1255" alt="Screenshot 2025-12-11 070122" src="https://github.com/user-attachments/assets/a45c096f-1874-4d41-81b1-a234278fa9bc" />
 
 ### Admin Panel
 *Screenshot of the admin panel*
-<img width="2543" height="1233" alt="Screenshot 2025-12-11 070157" src="https://github.com/user-attachments/assets/d9df63d7-23ee-4369-8761-1154c9ea11da" />
 
 ### Emergency Alert
 *Screenshot of emergency alert mode*
-<img width="2541" height="1174" alt="Screenshot 2025-12-11 070217" src="https://github.com/user-attachments/assets/d7750831-ca10-4d94-93dd-a66755cc8a5b" />
 
 ### Dismissal Display
 *Screenshot of student dismissal display*
-<img width="842" height="1122" alt="Screenshot 2025-12-11 070332" src="https://github.com/user-attachments/assets/2c53e406-51c5-42f2-896a-bd7c352bad51" />
-<img width="2537" height="1240" alt="Screenshot 2025-12-11 070406" src="https://github.com/user-attachments/assets/feee64bf-bf00-4f07-856c-3322bdececad" />
 
 </details>
 
@@ -75,8 +70,8 @@ A modern, real-time digital signage system designed for schools. Display announc
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/Wyattech/SchoolAnnouncements.git
-   cd school-announcements
+   git clone https://github.com/newblood2/SchoolAnnouncements.git
+   cd SchoolAnnouncements
    ```
 
 2. **Configure environment variables**
@@ -95,28 +90,40 @@ A modern, real-time digital signage system designed for schools. Display announc
    - Admin Panel: http://localhost:8080/admin.html
    - Dismissal Manager: http://localhost:8080/dismissal.html
 
-5. **(Recommended) Enable HTTPS/HTTP2**
-
-   For better performance and security, especially with multiple kiosks:
-   ```bash
-   # Install mkcert (see HTTPS section below for your OS)
-   cd certs
-   ./setup-certs.ps1 -ServerIP "YOUR_SERVER_IP"  # Windows
-   # OR
-   ./setup-certs.sh YOUR_SERVER_IP               # Linux/macOS
-
-   # Restart Docker
-   cd ..
-   docker-compose down && docker-compose up -d
-   ```
-
-   Then access via: https://YOUR_SERVER_IP:8443
-
 ### Default Credentials
 - **Admin Password**: Set via `ADMIN_PASSWORD` in `.env` (default: `admin123`)
 - **API Key**: Set via `API_KEY` in `.env` (default: `change-this-in-production`)
 
 > **Important**: Change the default credentials before deploying!
+
+### Using Pre-built Docker Image
+
+You can also pull the pre-built image from GitHub Container Registry:
+
+```bash
+docker pull ghcr.io/newblood2/schoolannouncements:main
+```
+
+Or use it directly in your docker-compose.yml:
+```yaml
+services:
+  school-announcements:
+    image: ghcr.io/newblood2/schoolannouncements:main
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+      - ./slides:/app/public/slides
+      - ./uploads:/app/public/uploads
+    environment:
+      - API_KEY=your-secret-key
+      - WEATHER_API_KEY=your-openweathermap-key
+      - TZ=America/New_York
+```
+
+### TrueNAS Scale Deployment
+
+See [docs/TRUENAS-DEPLOYMENT.md](docs/TRUENAS-DEPLOYMENT.md) for deploying on TrueNAS Scale using the Custom App feature.
 
 ## Configuration
 
@@ -152,42 +159,36 @@ See [OBS-MEDIAMTX-SETUP.md](docs/OBS-MEDIAMTX-SETUP.md) for detailed streaming c
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        Docker Network                        │
-├─────────────────┬─────────────────┬─────────────────────────┤
-│                 │                 │                         │
-│  ┌───────────┐  │  ┌───────────┐  │  ┌───────────────────┐  │
-│  │  Nginx    │  │  │  Node.js  │  │  │    MediaMTX       │  │
-│  │  :8080    │◄─┼─►│  API      │  │  │  Streaming Server │  │
-│  │           │  │  │  :3000    │  │  │  :8889 (WebRTC)   │  │
-│  └───────────┘  │  └───────────┘  │  │  :1935 (RTMP)     │  │
-│       ▲         │       ▲         │  └───────────────────┘  │
-│       │         │       │         │           ▲             │
-└───────┼─────────┴───────┼─────────┴───────────┼─────────────┘
-        │                 │                     │
-   ┌────┴────┐      ┌─────┴─────┐         ┌─────┴─────┐
-   │ Browser │      │ Settings  │         │    OBS    │
-   │ Display │      │   JSON    │         │  Studio   │
-   └─────────┘      └───────────┘         └───────────┘
+┌───────────────────────────────────────────────────────────┐
+│                      Docker Network                        │
+├─────────────────────────────┬─────────────────────────────┤
+│                             │                             │
+│  ┌───────────────────────┐  │  ┌───────────────────────┐  │
+│  │  School Announcements │  │  │       MediaMTX        │  │
+│  │  (Node.js + Static)   │  │  │   Streaming Server    │  │
+│  │       :8080           │  │  │   :8889 (WebRTC)      │  │
+│  │                       │  │  │   :1935 (RTMP)        │  │
+│  └───────────────────────┘  │  └───────────────────────┘  │
+│             ▲               │             ▲               │
+└─────────────┼───────────────┴─────────────┼───────────────┘
+              │                             │
+    ┌─────────┴─────────┐           ┌───────┴───────┐
+    │  Browser/Display  │           │  OBS Studio   │
+    └───────────────────┘           └───────────────┘
 ```
 
 ## File Structure
 
 ```
-school-announcements/
+SchoolAnnouncements/
 ├── api/                    # Node.js API server
-│   ├── server.js          # Main API server
-│   ├── security.js        # Security utilities
-│   ├── settings.json      # Persistent settings
-│   └── uploads/           # Uploaded images
-├── certs/                  # SSL certificates (generated)
-│   ├── setup-certs.sh     # Certificate generator (Linux/macOS)
-│   ├── setup-certs.ps1    # Certificate generator (Windows)
-│   ├── server.crt         # SSL certificate (generated)
-│   ├── server.key         # Private key (generated)
-│   └── rootCA.pem         # Root CA to install on kiosks
-├── kiosk/                  # Kiosk display setup scripts
-│   └── raspberry-pi-setup.sh  # Raspberry Pi kiosk installer
+│   ├── server.js          # Main server (API + static files)
+│   └── security.js        # Security utilities
+├── data/                   # Persistent data (mount as volume)
+│   ├── settings.json      # App settings
+│   ├── displays.json      # Connected displays
+│   ├── dismissal-history.json  # Dismissal records
+│   └── analytics.json     # Usage analytics
 ├── js/                     # Frontend JavaScript modules
 │   ├── theme-loader.js    # Real-time theme updates
 │   ├── emergency-alert.js # Emergency alert display
@@ -195,132 +196,42 @@ school-announcements/
 │   └── ...
 ├── streaming-server/       # MediaMTX configuration
 ├── docs/                   # Documentation
+├── slides/                 # Custom slide images (mount as volume)
+├── uploads/                # Uploaded images (mount as volume)
 ├── docker-compose.yml      # Docker orchestration
-├── Dockerfile             # Nginx frontend container
-├── nginx.conf             # Nginx HTTPS configuration
-├── nginx-http.conf        # Nginx HTTP fallback configuration
+├── Dockerfile             # Combined Node.js container
 ├── config.js              # Frontend configuration
 └── .env                   # Environment variables
 ```
 
-## HTTPS / HTTP2 Setup (Recommended)
+## HTTPS Setup (Optional)
 
-Enabling HTTPS provides better security and enables HTTP/2, which significantly improves performance by allowing multiple requests over a single connection (eliminates the 6-connection browser limit).
+For production deployments requiring HTTPS, place a reverse proxy (like Nginx, Traefik, or Caddy) in front of the application.
 
-### Why HTTP/2?
+**Using Traefik (recommended for Docker):**
+```yaml
+# Add to docker-compose.yml
+services:
+  traefik:
+    image: traefik:v2.10
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./certs:/certs
+    command:
+      - "--providers.docker=true"
+      - "--entrypoints.websecure.address=:443"
 
-| Feature | HTTP/1.1 | HTTP/2 |
-|---------|----------|--------|
-| Connections per domain | 6 max | Unlimited (multiplexed) |
-| Page load with many assets | Slow (queued) | Fast (parallel) |
-| Real-time updates (SSE) | May block other requests | Works smoothly |
-
-### Quick Setup (5 minutes)
-
-#### Step 1: Install mkcert
-
-**Windows (PowerShell as Administrator):**
-```powershell
-choco install mkcert
-# OR with Scoop:
-scoop install mkcert
+  school-announcements:
+    labels:
+      - "traefik.http.routers.school.rule=Host(`announcements.local`)"
+      - "traefik.http.routers.school.tls=true"
 ```
 
-**macOS:**
-```bash
-brew install mkcert
-```
-
-**Linux (Debian/Ubuntu):**
-```bash
-sudo apt install libnss3-tools
-curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
-chmod +x mkcert-v*-linux-amd64
-sudo mv mkcert-v*-linux-amd64 /usr/local/bin/mkcert
-```
-
-#### Step 2: Generate Certificates
-
-```bash
-# Navigate to certs directory
-cd certs
-
-# Windows (PowerShell):
-.\setup-certs.ps1 -ServerIP "192.168.1.100"
-
-# Linux/macOS:
-chmod +x setup-certs.sh
-./setup-certs.sh 192.168.1.100
-```
-
-Replace `192.168.1.100` with your server's actual IP address.
-
-#### Step 3: Restart Docker
-
-```bash
-docker-compose down && docker-compose up -d
-```
-
-#### Step 4: Access via HTTPS
-
-- **HTTPS**: https://192.168.1.100:8443
-- **HTTP** (redirects to HTTPS): http://192.168.1.100:8080
-
-### Installing Root CA on Kiosk Devices
-
-After generating certificates, you need to install the root CA on each kiosk device to avoid certificate warnings.
-
-The root CA file is located at: `certs/rootCA.pem`
-
-#### Windows
-
-1. Copy `rootCA.pem` to the kiosk
-2. Double-click the file
-3. Click "Install Certificate"
-4. Select "Local Machine" → Next
-5. Select "Place all certificates in the following store"
-6. Click "Browse" → select "Trusted Root Certification Authorities"
-7. Click Next → Finish
-
-**Or via Command Line (as Administrator):**
-```cmd
-certutil -addstore -f "ROOT" rootCA.pem
-```
-
-**Or via Group Policy (for multiple machines):**
-1. Open Group Policy Management
-2. Create/edit a GPO linked to your kiosk OU
-3. Navigate to: Computer Configuration → Policies → Windows Settings → Security Settings → Public Key Policies → Trusted Root Certification Authorities
-4. Import `rootCA.pem`
-
-#### macOS
-
-```bash
-sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain rootCA.pem
-```
-
-#### Linux (Debian/Ubuntu)
-
-```bash
-sudo cp rootCA.pem /usr/local/share/ca-certificates/school-announcements.crt
-sudo update-ca-certificates
-```
-
-#### Linux (Fedora/RHEL)
-
-```bash
-sudo cp rootCA.pem /etc/pki/ca-trust/source/anchors/
-sudo update-ca-trust
-```
-
-#### Chromebook (Managed)
-
-Use Google Admin Console to deploy the certificate via Chrome Enterprise policy.
-
-### Verifying HTTP/2
-
-Open Chrome DevTools (F12) → Network tab → Right-click column headers → Enable "Protocol".
-You should see "h2" for HTTP/2 connections.
+**Using Nginx:**
+See `docker-compose.multi.yml` and `Dockerfile.nginx` for the multi-container setup with Nginx reverse proxy.
 
 ## Raspberry Pi Kiosk Setup
 

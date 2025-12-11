@@ -4,10 +4,10 @@
     "location": "Unknown",
     "status": "online",
     "registeredAt": 1765406883969,
-    "lastHeartbeat": 1765450429720,
+    "lastHeartbeat": 1765454638979,
     "ipAddress": "172.20.0.1",
     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36",
-    "screenResolution": "1441x2561",
+    "screenResolution": "2560x1440",
     "currentPage": "index",
     "offlineSince": null
   },

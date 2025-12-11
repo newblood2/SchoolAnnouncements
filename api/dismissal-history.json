@@ -1,1 +1,20 @@
-{}
+{
+  "history": [
+    {
+      "id": "279fef6472747828",
+      "date": "2025-12-11",
+      "studentName": "John Smith",
+      "grade": "4",
+      "calledAt": "2025-12-11T12:03:51.657Z",
+      "completedAt": null
+    },
+    {
+      "id": "1cc3158200f712c9",
+      "date": "2025-12-11",
+      "studentName": "Jane Doe",
+      "grade": "6",
+      "calledAt": "2025-12-11T12:03:51.663Z",
+      "completedAt": null
+    }
+  ]
+}
