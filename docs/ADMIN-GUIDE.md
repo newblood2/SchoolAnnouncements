@@ -4,15 +4,15 @@
 
 Navigate to `/admin.html` to access the admin panel.
 
-**Default Password:** `admin123`
+**Password:** Your `API_KEY` environment variable value
 
-**SECURITY WARNING:** Change this password immediately in `config.js` (line 55):
+The admin password is set via the `API_KEY` environment variable on the server:
+- **Docker Compose:** Set in `.env` file
+- **TrueNAS:** Set in Custom App environment variables
 
-```javascript
-ADMIN_PASSWORD: 'your-secure-password-here'
-```
+**Default:** `change-this-in-production` (change this immediately!)
 
-**Note:** The password is stored in plaintext in `config.js` since this is a client-side application. For production use with sensitive data, consider implementing server-side authentication.
+Authentication is handled server-side for security.
 
 ## Features
 
@@ -93,7 +93,7 @@ Click **"Reset to Default"** to restore original slide content.
 
 ### 3. Livestream Configuration
 
-Control livestream display settings.
+Control livestream display settings. The system uses **MediaMTX** with **WebRTC/WHIP** for ultra-low latency streaming (300-500ms).
 
 #### Enable/Disable Livestream
 
@@ -102,9 +102,19 @@ Use the toggle switch to enable or disable livestream functionality.
 #### Livestream URL
 
 Enter your livestream URL:
+- **WebRTC (Recommended):** `http://YOUR_SERVER_IP:8080/stream-viewer.html`
 - **YouTube Live:** `https://www.youtube.com/embed/YOUR_VIDEO_ID`
-- **OBS/RTMP:** `http://192.168.1.100:8080/stream.m3u8`
 - Any iframe-compatible video source
+
+#### OBS Setup (WHIP - Recommended)
+
+For OBS Studio 29+:
+1. Go to **Settings → Stream**
+2. Set Service: **WHIP**
+3. Set Server: `http://YOUR_SERVER_IP:8889/announcements/whip`
+4. Click **Start Streaming**
+
+See [OBS-MEDIAMTX-SETUP.md](OBS-MEDIAMTX-SETUP.md) for detailed configuration.
 
 #### Auto-Detection
 
@@ -115,7 +125,7 @@ Enable **"Auto-detect when livestream is online"** to automatically switch betwe
 Set how often (in seconds) the system checks if the stream is online:
 - Minimum: 10 seconds
 - Maximum: 300 seconds (5 minutes)
-- Recommended: 60 seconds (default)
+- Recommended: 30 seconds
 
 ### 4. General Settings
 
@@ -173,10 +183,10 @@ The `theme-loader.js` module automatically loads and applies saved settings when
 ### Session Security
 
 Admin login is session-based:
-- Password is validated against `config.js`
+- Password is validated against the server's `API_KEY` environment variable
+- Session token is stored in browser sessionStorage
 - Session expires when browser tab closes
-- No cookies or persistent login
-- Password is stored in plaintext in config (consider server-side auth for production)
+- All authentication is handled server-side
 
 ## Tips & Best Practices
 
