@@ -192,6 +192,11 @@ app.use('/stream', async (req, res) => {
             }
         };
 
+        // Forward Authorization header (for WHIP Bearer Token auth)
+        if (req.headers.authorization) {
+            fetchOptions.headers['Authorization'] = req.headers.authorization;
+        }
+
         // Forward content-type and body for POST/PATCH requests (WHIP/WHEP SDP)
         if (req.method === 'POST' || req.method === 'PATCH') {
             fetchOptions.headers['Content-Type'] = req.headers['content-type'] || 'application/sdp';
