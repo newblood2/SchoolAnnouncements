@@ -46,12 +46,12 @@
     }
 
     /**
-     * Activates the livestream display
+     * Activates the livestream display by injecting iframe into slideshow widget
      * @param {HTMLElement} livestreamFrame - Livestream iframe element
      * @param {string} url - Livestream URL
      */
     function activateLivestream(livestreamFrame, url) {
-        // Stop slideshow
+        // Stop slideshow animations
         if (window.Slideshow) {
             window.Slideshow.hide();
         }
@@ -59,12 +59,46 @@
         // Add autoplay parameter for MediaMTX streams
         let streamUrl = url;
         if (url.includes('8889') || url.includes('/stream/')) {
-            // Check if URL already has query parameters
             const separator = url.includes('?') ? '&' : '?';
             streamUrl = url + separator + 'autoplay=yes';
         }
 
-        // Show livestream
+        // Find the slideshow widget (grid layout)
+        const slideshowWidget = document.querySelector('.widget-slideshow');
+
+        if (slideshowWidget) {
+            // Hide ALL children of the slideshow widget (the slideshow content)
+            Array.from(slideshowWidget.children).forEach(child => {
+                if (child !== livestreamFrame) {
+                    child.style.display = 'none';
+                }
+            });
+
+            // Style iframe to fill the widget completely
+            livestreamFrame.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                border: none;
+                border-radius: 12px;
+                z-index: 10;
+                display: block;
+            `;
+
+            // Ensure widget fills properly for absolute child
+            slideshowWidget.style.position = 'relative';
+            slideshowWidget.style.overflow = 'hidden';
+            slideshowWidget.style.display = 'block';
+
+            // Move iframe into the widget
+            if (livestreamFrame.parentElement !== slideshowWidget) {
+                slideshowWidget.appendChild(livestreamFrame);
+            }
+        }
+
+        // Set source and show
         livestreamFrame.src = streamUrl;
         livestreamFrame.style.display = 'block';
         isLivestreamActive = true;
@@ -72,7 +106,7 @@
     }
 
     /**
-     * Deactivates the livestream display
+     * Deactivates the livestream display and restores slideshow
      * @param {HTMLElement} livestreamFrame - Livestream iframe element
      */
     function deactivateLivestream(livestreamFrame) {
@@ -80,6 +114,20 @@
         livestreamFrame.style.display = 'none';
         livestreamFrame.src = '';
         isLivestreamActive = false;
+
+        // Restore the slideshow widget children and display
+        const slideshowWidget = document.querySelector('.widget-slideshow');
+        if (slideshowWidget) {
+            // Restore flex display
+            slideshowWidget.style.display = 'flex';
+            slideshowWidget.style.flexDirection = 'column';
+
+            Array.from(slideshowWidget.children).forEach(child => {
+                if (child !== livestreamFrame) {
+                    child.style.display = '';
+                }
+            });
+        }
 
         // Restart slideshow
         if (window.Slideshow) {
