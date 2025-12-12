@@ -140,6 +140,8 @@
      * Initializes the slideshow
      */
     function initSlideshow() {
+        // Reset state
+        currentSlide = 0;
         slides = document.querySelectorAll(`.${CONSTANTS.CSS_CLASSES.SLIDE}`);
 
         if (slides.length > 0) {
