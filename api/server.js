@@ -294,6 +294,61 @@ app.get('/api/stream/:streamName/status', async (req, res) => {
 });
 
 /**
+ * POST /api/stream/auth
+ * External authentication endpoint for MediaMTX
+ * MediaMTX calls this to validate publish credentials
+ * Returns 200 OK to allow, 401 to deny
+ */
+app.post('/api/stream/auth', express.json(), async (req, res) => {
+    try {
+        const { user, password, action, path } = req.body;
+
+        // Only validate publish actions (streaming to server)
+        // Read actions (viewing) should be allowed without auth
+        if (action === 'read') {
+            return res.status(200).send('OK');
+        }
+
+        // For publish actions, validate credentials
+        if (action === 'publish') {
+            // Load the publish token from settings
+            const settings = loadSettings();
+            const livestreamConfig = settings.livestreamConfig || {};
+            const storedToken = livestreamConfig.publishToken;
+
+            // If no token configured, allow all (for backwards compatibility)
+            if (!storedToken || storedToken === '') {
+                console.log(`Stream auth: No token configured, allowing publish to ${path}`);
+                return res.status(200).send('OK');
+            }
+
+            // Validate credentials
+            // Expected: user = "stream", password = the token
+            if (user === 'stream' && password === storedToken) {
+                console.log(`Stream auth: Valid credentials for ${path}`);
+                return res.status(200).send('OK');
+            }
+
+            // Also accept the token directly as password with no user
+            if (!user && password === storedToken) {
+                console.log(`Stream auth: Valid token for ${path}`);
+                return res.status(200).send('OK');
+            }
+
+            console.log(`Stream auth: Invalid credentials for ${path} (user: ${user})`);
+            return res.status(401).send('Invalid credentials');
+        }
+
+        // For other actions (playback, etc.), allow
+        res.status(200).send('OK');
+
+    } catch (error) {
+        console.error('Stream auth error:', error);
+        res.status(500).send('Internal server error');
+    }
+});
+
+/**
  * Generate a secure session token
  */
 function generateSessionToken() {

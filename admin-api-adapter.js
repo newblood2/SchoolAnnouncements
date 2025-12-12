@@ -95,11 +95,13 @@
             });
             const checkIntervalSeconds = validateNum(document.getElementById('livestreamCheckInterval').value, 10, 300, 10);
 
+            const publishTokenEl = document.getElementById('streamPublishToken');
             const livestreamConfig = {
                 enabled: document.getElementById('enableLivestream').checked,
                 url: document.getElementById('livestreamUrl').value,
                 autoDetect: document.getElementById('autoDetectLivestream').checked,
-                checkInterval: checkIntervalSeconds * 1000
+                checkInterval: checkIntervalSeconds * 1000,
+                publishToken: publishTokenEl ? publishTokenEl.value : ''
             };
 
             try {

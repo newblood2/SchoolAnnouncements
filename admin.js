@@ -813,8 +813,17 @@ async function initializeAdmin() {
     autoDetectLivestream.checked = livestreamConfig.autoDetect === true;
     livestreamCheckInterval.value = (livestreamConfig.checkInterval || 10000) / 1000;
 
+    // Load stream publish token
+    const streamPublishToken = document.getElementById('streamPublishToken');
+    if (streamPublishToken && livestreamConfig.publishToken) {
+        streamPublishToken.value = livestreamConfig.publishToken;
+    }
+
     // Update visibility based on enabled state
     updateLivestreamOptionsVisibility();
+
+    // Setup stream token UI handlers
+    setupStreamTokenHandlers();
 
     // Load general settings (API first, then localStorage)
     const generalConfig = settings.generalConfig || JSON.parse(localStorage.getItem('generalConfig') || '{}');
@@ -898,6 +907,45 @@ function initializePreview() {
             }
         });
     });
+}
+
+// ========================================
+// Stream Token Handlers
+// ========================================
+
+function setupStreamTokenHandlers() {
+    const tokenInput = document.getElementById('streamPublishToken');
+    const toggleBtn = document.getElementById('toggleTokenVisibility');
+    const generateBtn = document.getElementById('generateTokenBtn');
+
+    if (!tokenInput) return;
+
+    // Toggle password visibility
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            if (tokenInput.type === 'password') {
+                tokenInput.type = 'text';
+                toggleBtn.textContent = 'Hide';
+            } else {
+                tokenInput.type = 'password';
+                toggleBtn.textContent = 'Show';
+            }
+        });
+    }
+
+    // Generate random token
+    if (generateBtn) {
+        generateBtn.addEventListener('click', () => {
+            // Generate a secure random token (16 bytes = 32 hex chars)
+            const array = new Uint8Array(16);
+            crypto.getRandomValues(array);
+            const token = Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
+            tokenInput.value = token;
+            tokenInput.type = 'text'; // Show the generated token
+            if (toggleBtn) toggleBtn.textContent = 'Hide';
+            showToast('Token generated! Remember to save settings.', 'info');
+        });
+    }
 }
 
 // ========================================

@@ -17,11 +17,10 @@ services:
       - ./mediamtx.yml:/mediamtx.yml:ro
     environment:
       - TZ=America/New_York
-      # Streaming authentication token - CHANGE THIS IN PRODUCTION!
-      # This is the password required to publish streams
-      # For RTMP: rtmp://server/announcements?user=stream&pass=YOUR_TOKEN
-      # For WHIP (OBS 30+): Enter as Bearer Token in OBS settings
-      - MTX_PATHDEFAULTS_PUBLISHPASS=${STREAM_PUBLISH_TOKEN:-change-me-in-production}
+      # External authentication URL - points to School Announcements API
+      # Set this to the address of your main server if running separately
+      # Default assumes same Docker network with container name "school-announcements"
+      - MTX_EXTERNALAUTHENTICATIONURL=${AUTH_SERVER_URL:-http://school-announcements:8080/api/stream/auth}
     labels:
       - "com.school.app=streaming-server"
       - "com.school.description=MediaMTX WebRTC Streaming Server for OBS"

@@ -380,34 +380,29 @@ paths:
     recordFormat: mp4
 ```
 
-### Authentication (Required)
+### Authentication (via Admin Panel)
 
-By default, streaming requires authentication to prevent unauthorized users from broadcasting.
+Streaming authentication is configured through the Admin Panel - no need to edit config files!
 
 #### Setting Your Stream Token
 
-1. **Edit `streaming-server/docker-compose.yml`:**
-   ```yaml
-   environment:
-     - STREAM_PUBLISH_TOKEN=your-secure-token-here
-   ```
+1. **Open Admin Panel:** `http://YOUR_SERVER:8080/admin.html`
+2. **Go to "Livestream" tab**
+3. **Find "Stream Publish Token" field**
+4. **Enter a secure token** (or click "Generate" for a random one)
+5. **Click "Save Livestream Settings"**
 
-2. **Restart MediaMTX:**
-   ```bash
-   cd streaming-server
-   docker compose down
-   docker compose up -d
-   ```
+The token takes effect immediately - no restart needed!
 
 #### Configuring OBS with Authentication
 
 **For WHIP (OBS 30+):**
 1. Settings → Stream
-2. Bearer Token: `stream:your-secure-token-here`
+2. Bearer Token: `stream:YOUR_TOKEN`
 
 **For RTMP (Older OBS):**
 1. Settings → Stream
-2. Stream Key: `?user=stream&pass=your-secure-token-here`
+2. Stream Key: `?user=stream&pass=YOUR_TOKEN`
 
 **Example with token `my-school-stream-2024`:**
 - WHIP Bearer Token: `stream:my-school-stream-2024`
@@ -415,14 +410,7 @@ By default, streaming requires authentication to prevent unauthorized users from
 
 #### Disabling Authentication (Not Recommended)
 
-If you're on a secure private network and want to disable authentication:
-
-```yaml
-# In streaming-server/docker-compose.yml
-environment:
-  - MTX_PATHDEFAULTS_PUBLISHUSER=
-  - MTX_PATHDEFAULTS_PUBLISHPASS=
-```
+To disable authentication, simply leave the "Stream Publish Token" field empty in the Admin Panel.
 
 **Warning:** Anyone on your network could then stream to your displays!
 

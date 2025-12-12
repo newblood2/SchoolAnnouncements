@@ -16,18 +16,21 @@ metricsAddress: :9998
 ###############################################
 # AUTHENTICATION
 ###############################################
-# Publishing authentication (streaming TO the server)
-# Set via environment variables in docker-compose.yml
-# For RTMP: rtmp://server/announcements?user=stream&pass=YOUR_TOKEN
-# For WHIP: Use Bearer token in OBS (Settings > Stream > Bearer Token)
+# External authentication - validates credentials via HTTP API
+# MediaMTX calls our server to validate OBS streaming credentials
+# Token is set in Admin Panel > Livestream > Stream Publish Token
+#
+# For OBS:
+# - WHIP: Bearer Token = stream:YOUR_TOKEN
+# - RTMP: Stream Key = ?user=stream&pass=YOUR_TOKEN
 
-# Default path authentication settings
-# These apply to all paths unless overridden
+# External authentication URL (set via environment variable)
+# Points to the School Announcements API server
+authMethod: external
+externalAuthenticationURL: http://school-announcements:8080/api/stream/auth
+
+# Default path settings
 pathDefaults:
-  # Require authentication for publishing (streaming to server)
-  publishUser: stream
-  publishPass: MTX_PUBLISH_TOKEN  # Set via env var, defaults to this if not set
-
   # Reading (viewing) is open - no auth required for displays
   readUser:
   readPass:

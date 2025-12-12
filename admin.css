@@ -1084,6 +1084,20 @@ body {
     font-size: 0.75rem;
 }
 
+.input-with-button {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.input-with-button .form-input {
+    flex: 1;
+}
+
+.input-with-button .btn {
+    flex-shrink: 0;
+}
+
 .slide-list-container {
     flex: 1;
     overflow-y: auto;
