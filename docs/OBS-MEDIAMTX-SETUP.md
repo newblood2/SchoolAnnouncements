@@ -39,7 +39,7 @@ Since you have OBS 29 or newer, you can use **WHIP** (simplest method):
 2. **Settings → Stream:**
    - Service: **WHIP**
    - Server: `http://YOUR_SERVER_IP:8889/announcements/whip`
-   - Bearer Token: (leave empty)
+   - Bearer Token: `stream:YOUR_STREAM_TOKEN` (see Authentication section below)
 
    **Example URLs:**
    - Same computer: `http://localhost:8889/announcements/whip`
@@ -74,7 +74,7 @@ If you're using an older version of OBS without WHIP support:
 1. **Settings → Stream:**
    - Service: **Custom**
    - Server: `rtmp://YOUR_SERVER_IP:1935/announcements`
-   - Stream Key: (leave empty or use any value)
+   - Stream Key: `?user=stream&pass=YOUR_STREAM_TOKEN` (see Authentication section)
 
 2. **Settings → Output:**
    - Output Mode: **Advanced**
@@ -380,19 +380,51 @@ paths:
     recordFormat: mp4
 ```
 
-### Authentication
+### Authentication (Required)
 
-Add bearer token authentication:
+By default, streaming requires authentication to prevent unauthorized users from broadcasting.
+
+#### Setting Your Stream Token
+
+1. **Edit `streaming-server/docker-compose.yml`:**
+   ```yaml
+   environment:
+     - STREAM_PUBLISH_TOKEN=your-secure-token-here
+   ```
+
+2. **Restart MediaMTX:**
+   ```bash
+   cd streaming-server
+   docker compose down
+   docker compose up -d
+   ```
+
+#### Configuring OBS with Authentication
+
+**For WHIP (OBS 30+):**
+1. Settings → Stream
+2. Bearer Token: `stream:your-secure-token-here`
+
+**For RTMP (Older OBS):**
+1. Settings → Stream
+2. Stream Key: `?user=stream&pass=your-secure-token-here`
+
+**Example with token `my-school-stream-2024`:**
+- WHIP Bearer Token: `stream:my-school-stream-2024`
+- RTMP Stream Key: `?user=stream&pass=my-school-stream-2024`
+
+#### Disabling Authentication (Not Recommended)
+
+If you're on a secure private network and want to disable authentication:
 
 ```yaml
-paths:
-  announcements:
-    publishUser: admin
-    publishPass: your-secure-password
+# In streaming-server/docker-compose.yml
+environment:
+  - MTX_PATHDEFAULTS_PUBLISHUSER=
+  - MTX_PATHDEFAULTS_PUBLISHPASS=
 ```
 
-Then in OBS WHIP settings:
-- Bearer Token: `YWRtaW46eW91ci1zZWN1cmUtcGFzc3dvcmQ=` (base64 encoded)
+**Warning:** Anyone on your network could then stream to your displays!
 
 ---
 
@@ -442,11 +474,12 @@ docker logs -f school-streaming-server
 ### OBS WHIP Setup (OBS 29+)
 - Service: WHIP
 - Server: `http://YOUR_IP:8889/announcements/whip`
-- Bearer Token: (leave empty)
+- Bearer Token: `stream:YOUR_STREAM_TOKEN`
 
 ### OBS RTMP Setup (Older OBS)
 - Service: Custom
 - Server: `rtmp://YOUR_IP:1935/announcements`
+- Stream Key: `?user=stream&pass=YOUR_STREAM_TOKEN`
 
 ### View Stream
 - Stream Viewer: `http://YOUR_IP:8080/stream-viewer.html`
@@ -463,12 +496,12 @@ docker logs -f school-streaming-server
 ## Next Steps
 
 1. ✅ Start MediaMTX server
-2. ✅ Configure OBS with WHIP
-3. ✅ Test stream in browser
-4. ✅ Integrate with announcements display
-5. ⏭️ Set up multiple camera streams (optional)
-6. ⏭️ Configure recording (optional)
-7. ⏭️ Add authentication (optional)
+2. ✅ Set stream authentication token
+3. ✅ Configure OBS with WHIP + Bearer Token
+4. ✅ Test stream in browser
+5. ✅ Integrate with announcements display
+6. ⏭️ Set up multiple camera streams (optional)
+7. ⏭️ Configure recording (optional)
 
 ---
 
