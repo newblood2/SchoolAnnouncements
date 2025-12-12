@@ -16,21 +16,31 @@ metricsAddress: :9998
 ###############################################
 # AUTHENTICATION
 ###############################################
-# External authentication - validates credentials via HTTP API
-# MediaMTX calls our server to validate OBS streaming credentials
-# Token is set in Admin Panel > Livestream > Stream Publish Token
+# Two authentication methods available:
+#
+# METHOD 1 (Recommended): External Auth via Admin Panel
+#   - Set token in Admin Panel > Livestream > Stream Publish Token
+#   - MediaMTX calls our API to validate credentials
+#   - Requires AUTH_SERVER_URL to be reachable from MediaMTX
+#
+# METHOD 2 (Fallback): Direct Token via Environment Variable
+#   - Set STREAM_PUBLISH_TOKEN in docker-compose or .env
+#   - Works when containers can't communicate
 #
 # For OBS:
 # - WHIP: Bearer Token = stream:YOUR_TOKEN
 # - RTMP: Stream Key = ?user=stream&pass=YOUR_TOKEN
 
-# External authentication URL (set via environment variable)
-# Points to the School Announcements API server
-authMethod: external
-externalAuthenticationURL: http://school-announcements:8080/api/stream/auth
+# External authentication (Method 1) - comment out if not using
+# authMethod: external
+# externalAuthenticationURL: http://school-announcements:8080/api/stream/auth
 
-# Default path settings
+# Direct authentication (Method 2) - set via environment variable
 pathDefaults:
+  # Publishing requires authentication
+  publishUser: stream
+  publishPass:  # Set via MTX_PATHDEFAULTS_PUBLISHPASS env var
+
   # Reading (viewing) is open - no auth required for displays
   readUser:
   readPass:

@@ -156,12 +156,13 @@ See [OBS-MEDIAMTX-SETUP.md](docs/OBS-MEDIAMTX-SETUP.md) for detailed streaming c
    - Enable livestream
    - Set URL to `stream-viewer.html` (auto-detects MediaMTX server)
    - Enable "Auto-detect when livestream is online"
+   - Set a **Stream Publish Token** (or click Generate for a random one)
 
 2. **Configure OBS** (WHIP - Recommended for OBS 29+):
    - Go to Settings → Stream
    - Set Service to "WHIP"
    - Set Server to `http://YOUR_SERVER_IP:8889/announcements/whip`
-   - Leave Bearer Token empty
+   - Set Bearer Token to `stream:YOUR_TOKEN` (the token you set in Admin Panel)
    - Start streaming
 
 The display will automatically switch to the livestream when OBS starts broadcasting.
