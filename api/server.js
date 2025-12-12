@@ -172,26 +172,46 @@ if (PUBLIC_DIR && fsSync.existsSync(PUBLIC_DIR)) {
 }
 
 // Proxy /stream/ requests to MediaMTX (for combined container mode)
+// This allows WHIP/WHEP streaming through the main port (8080)
 const MEDIAMTX_HOST = process.env.MEDIAMTX_HOST || 'localhost';
 const MEDIAMTX_PORT = process.env.MEDIAMTX_PORT || '8889';
+
+// Collect raw body for stream proxy (needed for SDP in WHIP/WHEP)
+app.use('/stream', express.raw({ type: '*/*', limit: '1mb' }));
 
 app.use('/stream', async (req, res) => {
     const streamPath = req.url || '/';
     const targetUrl = `http://${MEDIAMTX_HOST}:${MEDIAMTX_PORT}${streamPath}`;
 
     try {
-        const response = await fetch(targetUrl, {
+        // Build fetch options
+        const fetchOptions = {
             method: req.method,
             headers: {
                 'Accept': req.headers.accept || '*/*',
-                'Content-Type': req.headers['content-type'] || 'application/json'
             }
-        });
+        };
 
-        // Forward response headers
+        // Forward content-type and body for POST/PATCH requests (WHIP/WHEP SDP)
+        if (req.method === 'POST' || req.method === 'PATCH') {
+            fetchOptions.headers['Content-Type'] = req.headers['content-type'] || 'application/sdp';
+            if (req.body && req.body.length > 0) {
+                fetchOptions.body = req.body;
+            }
+        }
+
+        const response = await fetch(targetUrl, fetchOptions);
+
+        // Forward response headers (important for WHIP Location header)
         for (const [key, value] of response.headers) {
             if (key.toLowerCase() !== 'transfer-encoding' && key.toLowerCase() !== 'content-encoding') {
-                res.setHeader(key, value);
+                // Rewrite Location header to use proxy path
+                if (key.toLowerCase() === 'location') {
+                    const location = value.replace(`http://${MEDIAMTX_HOST}:${MEDIAMTX_PORT}`, '/stream');
+                    res.setHeader(key, location);
+                } else {
+                    res.setHeader(key, value);
+                }
             }
         }
 
