@@ -220,6 +220,59 @@ app.use('/stream', async (req, res) => {
     }
 });
 
+// MediaMTX API port (default 9997)
+const MEDIAMTX_API_PORT = process.env.MEDIAMTX_API_PORT || '9997';
+
+/**
+ * GET /api/stream/:streamName/status
+ * Check if a MediaMTX stream is online (has an active publisher)
+ * Used by livestream.js to auto-detect when OBS is streaming
+ */
+app.get('/api/stream/:streamName/status', async (req, res) => {
+    const { streamName } = req.params;
+
+    try {
+        // Query MediaMTX API to check stream status
+        const apiUrl = `http://${MEDIAMTX_HOST}:${MEDIAMTX_API_PORT}/v3/paths/get/${encodeURIComponent(streamName)}`;
+
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        });
+
+        if (!response.ok) {
+            // Stream path doesn't exist or MediaMTX API error
+            return res.json({
+                online: false,
+                error: response.status === 404 ? 'Stream not found' : 'MediaMTX API error',
+                source: null
+            });
+        }
+
+        const data = await response.json();
+
+        // Check if stream has an active source (publisher)
+        // When OBS is streaming, source will have properties like type: "rtmpConn" or "webRTCSession"
+        const hasPublisher = data.source && data.source.id && data.source.id !== '';
+
+        res.json({
+            online: hasPublisher,
+            name: data.name,
+            source: data.source || null,
+            readers: data.readers || [],
+            ready: data.ready || false
+        });
+
+    } catch (error) {
+        console.error('Stream status check error:', error.message);
+        res.json({
+            online: false,
+            error: 'Failed to check stream status',
+            source: null
+        });
+    }
+});
+
 /**
  * Generate a secure session token
  */
