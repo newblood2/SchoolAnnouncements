@@ -181,12 +181,15 @@
         if (slides.length > 0) {
             selectSlide(0);
         } else {
-            document.getElementById('slideEditorContainer').innerHTML = `
-                <div class="no-slide-selected">
-                    <p>No slides in this slideshow.</p>
-                    <p>Click "Add Slide" to create one!</p>
-                </div>
-            `;
+            const editorContainer = document.getElementById('slideEditorContainer');
+            if (editorContainer) {
+                editorContainer.innerHTML = `
+                    <div class="no-slide-selected">
+                        <p>No slides in this slideshow.</p>
+                        <p>Click "Add Slide" to create one!</p>
+                    </div>
+                `;
+            }
         }
 
         saveSlideshows();
