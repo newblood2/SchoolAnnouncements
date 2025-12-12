@@ -102,21 +102,34 @@
         const statusText = document.getElementById('statusText');
         const debugInfo = document.getElementById('debugInfo');
 
-        // Get stream configuration from localStorage (set by admin panel) or use default
+        // Get stream configuration from URL params, localStorage, or auto-detect
+        const urlParams = new URLSearchParams(window.location.search);
         const livestreamConfig = JSON.parse(localStorage.getItem('livestreamConfig') || '{}');
 
-        // Default stream name is 'announcements'
-        const streamName = 'announcements';
+        // Default stream name is 'announcements' (can be overridden via URL param)
+        const streamName = urlParams.get('stream') || 'announcements';
 
-        // Get server address from config or use localhost
-        let serverAddress = 'localhost:8889';
-        if (livestreamConfig.url) {
+        // Get server address:
+        // 1. From URL parameter ?server=192.168.1.100:8889
+        // 2. From localStorage config
+        // 3. Auto-detect: use current hostname with MediaMTX port 8889
+        let serverAddress = urlParams.get('server');
+
+        if (!serverAddress && livestreamConfig.url) {
             try {
                 const url = new URL(livestreamConfig.url);
-                serverAddress = url.host;
+                if (url.port === '8889' || url.pathname.includes('/whep')) {
+                    serverAddress = url.host;
+                }
             } catch (e) {
-                console.log('Using default server address');
+                console.log('Could not parse livestream config URL');
             }
+        }
+
+        if (!serverAddress) {
+            // Auto-detect: use same hostname as current page but with MediaMTX port
+            const currentHost = window.location.hostname || 'localhost';
+            serverAddress = `${currentHost}:8889`;
         }
 
         const whepUrl = `http://${serverAddress}/${streamName}/whep`;
