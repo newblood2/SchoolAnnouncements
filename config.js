@@ -53,7 +53,7 @@ window.CONFIG = {
     AUTO_DETECT_LIVESTREAM: false,
 
     // Check interval for livestream status (milliseconds)
-    LIVESTREAM_CHECK_INTERVAL: 60000  // 1 minute
+    LIVESTREAM_CHECK_INTERVAL: 10000  // 10 seconds (minimum recommended)
 
     // NOTE: Admin password is stored ONLY in .env file (API_KEY variable)
     // Authentication is handled server-side for security

@@ -622,7 +622,7 @@ document.getElementById('saveLivestreamBtn').addEventListener('click', async () 
         const n = parseInt(v);
         return (!isNaN(n) && n >= min && n <= max) ? n : def;
     });
-    const checkIntervalSeconds = validateNum(livestreamCheckInterval.value, 10, 300, 60);
+    const checkIntervalSeconds = validateNum(livestreamCheckInterval.value, 10, 300, 10);
 
     const livestreamConfig = {
         enabled: enableLivestream.checked,
@@ -807,10 +807,10 @@ async function initializeAdmin() {
 
     // Load livestream config (API first, then localStorage)
     const livestreamConfig = settings.livestreamConfig || JSON.parse(localStorage.getItem('livestreamConfig') || '{}');
-    enableLivestream.checked = livestreamConfig.enabled || false;
+    enableLivestream.checked = livestreamConfig.enabled === true;
     livestreamUrl.value = livestreamConfig.url || '';
-    autoDetectLivestream.checked = livestreamConfig.autoDetect || false;
-    livestreamCheckInterval.value = (livestreamConfig.checkInterval || 60000) / 1000;
+    autoDetectLivestream.checked = livestreamConfig.autoDetect === true;
+    livestreamCheckInterval.value = (livestreamConfig.checkInterval || 10000) / 1000;
 
     // Update visibility based on enabled state
     updateLivestreamOptionsVisibility();
