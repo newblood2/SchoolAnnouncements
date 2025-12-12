@@ -171,6 +171,55 @@ if (PUBLIC_DIR && fsSync.existsSync(PUBLIC_DIR)) {
     app.use('/slides', express.static(path.join(PUBLIC_DIR, 'slides')));
 }
 
+// Proxy /stream/ requests to MediaMTX (for combined container mode)
+const MEDIAMTX_HOST = process.env.MEDIAMTX_HOST || 'localhost';
+const MEDIAMTX_PORT = process.env.MEDIAMTX_PORT || '8889';
+
+app.use('/stream', async (req, res) => {
+    const streamPath = req.url || '/';
+    const targetUrl = `http://${MEDIAMTX_HOST}:${MEDIAMTX_PORT}${streamPath}`;
+
+    try {
+        const response = await fetch(targetUrl, {
+            method: req.method,
+            headers: {
+                'Accept': req.headers.accept || '*/*',
+                'Content-Type': req.headers['content-type'] || 'application/json'
+            }
+        });
+
+        // Forward response headers
+        for (const [key, value] of response.headers) {
+            if (key.toLowerCase() !== 'transfer-encoding' && key.toLowerCase() !== 'content-encoding') {
+                res.setHeader(key, value);
+            }
+        }
+
+        res.status(response.status);
+
+        // Stream the response body
+        if (response.body) {
+            const reader = response.body.getReader();
+            const pump = async () => {
+                const { done, value } = await reader.read();
+                if (done) {
+                    res.end();
+                    return;
+                }
+                res.write(Buffer.from(value));
+                await pump();
+            };
+            await pump();
+        } else {
+            const text = await response.text();
+            res.send(text);
+        }
+    } catch (error) {
+        console.error('Stream proxy error:', error.message);
+        res.status(502).json({ error: 'Stream server unavailable' });
+    }
+});
+
 /**
  * Generate a secure session token
  */
