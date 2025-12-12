@@ -1851,6 +1851,21 @@ body.fullscreen-layout .content-display {
     color: var(--color-accent-gold, #ffd700);
 }
 
+/* Events and bullet list - ensure no browser bullets */
+.events-list,
+.bullet-list,
+.slide .events-list,
+.slide .bullet-list {
+    list-style: none !important;
+    padding-left: 0;
+    margin: 0;
+}
+
+.events-list li,
+.bullet-list li {
+    list-style: none !important;
+}
+
 /* Weather widget */
 .widget-weather-content {
     display: flex;
