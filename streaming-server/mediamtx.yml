@@ -1,5 +1,5 @@
 # MediaMTX Configuration for School Announcements
-# Simplified for compatibility with v1.9.x
+# Optimized for ultra-low latency WebRTC streaming
 
 # Logging
 logLevel: info
@@ -16,33 +16,45 @@ metricsAddress: :9998
 # RTMP server (for OBS compatibility)
 rtmp: yes
 rtmpAddress: :1935
+rtmpEncryption: "no"
 
-# HLS server (fallback)
+# HLS server (for fallback compatibility if needed)
 hls: yes
 hlsAddress: :8888
+hlsEncryption: no
+hlsAlwaysRemux: no
 hlsVariant: lowLatency
 hlsSegmentCount: 7
 hlsSegmentDuration: 1s
 hlsPartDuration: 200ms
+hlsSegmentMaxSize: 50M
 
 # WebRTC server (main output for displays)
 webrtc: yes
 webrtcAddress: :8889
+webrtcEncryption: no
+webrtcAllowOrigin: "*"
+webrtcTrustedProxies: []
 webrtcLocalUDPAddress: :8189
 webrtcLocalTCPAddress: :8189
 webrtcIPsFromInterfaces: yes
-webrtcAllowOrigin: "*"
+webrtcIPsFromInterfacesList: []
+webrtcAdditionalHosts: []
+webrtcICEServers2: []
 
 # Paths (streaming endpoints)
 paths:
   # Main announcements stream
   announcements:
     source: publisher
+    sourceOnDemand: no
 
-  # Alias for "live" path
+  # Alias for "live" path (for RTMP compatibility)
   live:
     source: publisher
+    sourceOnDemand: no
 
-  # Allow any other stream path
+  # Allow any other stream name
   all_others:
     source: publisher
+    sourceOnDemand: no
