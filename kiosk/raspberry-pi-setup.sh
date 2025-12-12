@@ -156,6 +156,14 @@ cat > "$KIOSK_SCRIPT" << EOF
 URL="$SERVER_URL"
 DISPLAY_NAME="$DISPLAY_NAME"
 
+# Enable audio auto-unmute for kiosk mode
+# Appends ?kiosk=1 to enable audio in stream-viewer.html
+if [[ "\$URL" != *"?"* ]]; then
+    URL="\${URL}?kiosk=1"
+elif [[ "\$URL" != *"kiosk=1"* ]]; then
+    URL="\${URL}&kiosk=1"
+fi
+
 # Wait for network
 echo "Waiting for network..."
 while ! ping -c 1 -W 1 8.8.8.8 &> /dev/null; do

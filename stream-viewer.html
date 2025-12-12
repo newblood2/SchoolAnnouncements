@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Stream Viewer - WebRTC</title>
     <style>
+        html {
+            width: 100%;
+            height: 100%;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -14,8 +19,8 @@
         body {
             background: #000;
             overflow: hidden;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -27,6 +32,7 @@
             height: 100%;
             object-fit: contain;
             display: none;
+            cursor: pointer;
         }
 
         #video.playing {
@@ -81,10 +87,81 @@
             font-size: 12px;
             border-radius: 5px;
             display: none;
+            z-index: 100;
         }
 
         .debug-info.show {
             display: block;
+        }
+
+        /* Mute/Unmute button */
+        #muteBtn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            transition: all 0.3s ease;
+        }
+
+        #muteBtn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: white;
+            transform: scale(1.1);
+        }
+
+        #muteBtn.show {
+            display: flex;
+        }
+
+        #muteBtn.muted {
+            background: rgba(255, 68, 68, 0.8);
+        }
+
+        /* Click to unmute overlay */
+        #unmuteOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 40;
+        }
+
+        #unmuteOverlay.show {
+            display: flex;
+        }
+
+        .unmute-prompt {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px 40px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+        }
+
+        .unmute-prompt .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .unmute-prompt .text {
+            font-size: 18px;
         }
     </style>
 </head>
@@ -94,6 +171,18 @@
         <div id="statusText">Connecting to stream...</div>
     </div>
     <video id="video" autoplay playsinline muted></video>
+
+    <!-- Unmute overlay (shown once on first load if not auto-unmuted) -->
+    <div id="unmuteOverlay">
+        <div class="unmute-prompt">
+            <div class="icon">🔇</div>
+            <div class="text">Click anywhere to enable audio</div>
+        </div>
+    </div>
+
+    <!-- Mute/Unmute button -->
+    <button id="muteBtn" class="muted" title="Toggle Audio">🔇</button>
+
     <div id="debugInfo" class="debug-info"></div>
 
     <script type="module">
@@ -101,6 +190,8 @@
         const status = document.getElementById('status');
         const statusText = document.getElementById('statusText');
         const debugInfo = document.getElementById('debugInfo');
+        const muteBtn = document.getElementById('muteBtn');
+        const unmuteOverlay = document.getElementById('unmuteOverlay');
 
         // Get stream configuration from URL params, localStorage, or auto-detect
         const urlParams = new URLSearchParams(window.location.search);
@@ -108,6 +199,11 @@
 
         // Default stream name is 'announcements' (can be overridden via URL param)
         const streamName = urlParams.get('stream') || 'announcements';
+
+        // Auto-unmute option for kiosk mode: ?unmute=1 or ?autoUnmute=1
+        const autoUnmute = urlParams.get('unmute') === '1' ||
+                          urlParams.get('autoUnmute') === '1' ||
+                          urlParams.get('kiosk') === '1';
 
         // Get server address:
         // 1. From URL parameter ?server=192.168.1.100:8889
@@ -137,6 +233,7 @@
         let pc = null;
         let restartTimeout = null;
         let sessionUrl = '';
+        let hasUserInteracted = false;
 
         // Debug mode (press 'D' to toggle)
         let debugMode = false;
@@ -144,6 +241,10 @@
             if (e.key === 'd' || e.key === 'D') {
                 debugMode = !debugMode;
                 debugInfo.classList.toggle('show', debugMode);
+            }
+            // Press 'M' to toggle mute
+            if (e.key === 'm' || e.key === 'M') {
+                toggleMute();
             }
         });
 
@@ -167,7 +268,54 @@
         function hideStatus() {
             status.style.display = 'none';
             video.classList.add('playing');
+            muteBtn.classList.add('show');
+
+            // Show unmute overlay if muted and user hasn't interacted yet
+            if (video.muted && !hasUserInteracted && !autoUnmute) {
+                unmuteOverlay.classList.add('show');
+            }
         }
+
+        function updateMuteButton() {
+            if (video.muted) {
+                muteBtn.textContent = '🔇';
+                muteBtn.classList.add('muted');
+                muteBtn.title = 'Click to Unmute';
+            } else {
+                muteBtn.textContent = '🔊';
+                muteBtn.classList.remove('muted');
+                muteBtn.title = 'Click to Mute';
+            }
+        }
+
+        function toggleMute() {
+            video.muted = !video.muted;
+            hasUserInteracted = true;
+            unmuteOverlay.classList.remove('show');
+            updateMuteButton();
+
+            // Save preference
+            localStorage.setItem('streamViewerMuted', video.muted ? '1' : '0');
+            log(`Audio ${video.muted ? 'muted' : 'unmuted'}`, 'info');
+        }
+
+        function unmute() {
+            video.muted = false;
+            hasUserInteracted = true;
+            unmuteOverlay.classList.remove('show');
+            updateMuteButton();
+            localStorage.setItem('streamViewerMuted', '0');
+            log('Audio unmuted', 'info');
+        }
+
+        // Click handlers for unmute
+        muteBtn.addEventListener('click', toggleMute);
+        unmuteOverlay.addEventListener('click', unmute);
+        video.addEventListener('click', () => {
+            if (video.muted) {
+                unmute();
+            }
+        });
 
         async function start() {
             log(`Starting WebRTC connection to ${whepUrl}`);
@@ -190,6 +338,16 @@
                     if (pc.iceConnectionState === 'connected') {
                         log('WebRTC connected successfully!', 'success');
                         hideStatus();
+
+                        // Auto-unmute if enabled (for kiosk mode)
+                        if (autoUnmute) {
+                            log('Auto-unmute enabled', 'info');
+                            // Small delay to ensure video is ready
+                            setTimeout(() => {
+                                video.muted = false;
+                                updateMuteButton();
+                            }, 500);
+                        }
                     } else if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'closed') {
                         log('WebRTC connection failed or closed', 'error');
                         handleError('Connection failed. Reconnecting...');
@@ -259,6 +417,8 @@
 
         function handleError(message) {
             showStatus(message, 'error');
+            muteBtn.classList.remove('show');
+            unmuteOverlay.classList.remove('show');
 
             // Cleanup existing connection
             if (pc) {
@@ -307,7 +467,8 @@
         log('Stream Viewer Initialized (WebRTC/WHEP)', 'info');
         log(`Server: ${serverAddress}`, 'info');
         log(`Stream: ${streamName}`, 'info');
-        log('Press D to toggle debug info', 'info');
+        log(`Auto-unmute: ${autoUnmute}`, 'info');
+        log('Press D to toggle debug info, M to toggle mute', 'info');
 
         start();
     </script>

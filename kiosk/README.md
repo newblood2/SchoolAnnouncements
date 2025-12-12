@@ -50,6 +50,20 @@ The Pi will automatically boot into kiosk mode showing the announcements display
 6. **Configures autostart** on boot
 7. **Enables auto-login** for the pi user
 8. **Creates management scripts** for easy maintenance
+9. **Enables audio auto-unmute** for livestream playback
+
+### Audio/Livestream
+
+The kiosk script automatically:
+- Adds `?kiosk=1` to URLs to enable audio auto-unmute
+- Configures Chromium with `--autoplay-policy=no-user-gesture-required`
+
+This means when a livestream starts, audio will play automatically without user interaction.
+
+**To manually control audio**, you can:
+- Press `M` key to toggle mute
+- Click the mute button (bottom-right when stream is playing)
+- Click anywhere on the video to unmute
 
 ### Management Commands
 
