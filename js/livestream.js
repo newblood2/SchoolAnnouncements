@@ -110,26 +110,34 @@
      * @param {HTMLElement} livestreamFrame - Livestream iframe element
      */
     function deactivateLivestream(livestreamFrame) {
-        // Hide livestream
+        // Hide livestream iframe
         livestreamFrame.style.display = 'none';
         livestreamFrame.src = '';
         isLivestreamActive = false;
 
-        // Restore the slideshow widget children and display
+        // Find slideshow widget and restore its display mode
         const slideshowWidget = document.querySelector('.widget-slideshow');
         if (slideshowWidget) {
-            // Restore flex display
+            // Restore the widget's flex display for proper slideshow layout
             slideshowWidget.style.display = 'flex';
             slideshowWidget.style.flexDirection = 'column';
+        }
 
-            Array.from(slideshowWidget.children).forEach(child => {
-                if (child !== livestreamFrame) {
-                    child.style.display = '';
-                }
+        // Find slideshow container and restore slides visibility
+        const slideshowContainer = document.getElementById('slideshow-container');
+        if (slideshowContainer) {
+            // Restore slideshow container display
+            slideshowContainer.style.display = 'flex';
+
+            // Reset all slides to use CSS-based visibility (opacity controlled by .active class)
+            const slides = slideshowContainer.querySelectorAll('.slide');
+            slides.forEach(slide => {
+                // Clear any inline display styles - let CSS handle visibility via opacity
+                slide.style.display = '';
             });
         }
 
-        // Restart slideshow
+        // Restart slideshow - this will properly show only the active slide
         if (window.Slideshow) {
             window.Slideshow.show();
         }
