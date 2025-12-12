@@ -37,13 +37,14 @@ metricsAddress: :9998
 
 # Direct authentication (Method 2) - set via environment variable
 pathDefaults:
-  # Publishing requires authentication
-  publishUser: stream
-  publishPass:  # Set via MTX_PATHDEFAULTS_PUBLISHPASS env var
+  # Publishing requires authentication (leave empty to disable)
+  # Set via MTX_PATHDEFAULTS_PUBLISHPASS env var or leave blank for no auth
+  publishUser: ""
+  publishPass: ""
 
   # Reading (viewing) is open - no auth required for displays
-  readUser:
-  readPass:
+  readUser: ""
+  readPass: ""
 
 # RTMP server (for OBS compatibility)
 rtmp: yes
