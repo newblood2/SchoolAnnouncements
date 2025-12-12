@@ -625,11 +625,15 @@ document.getElementById('saveLivestreamBtn').addEventListener('click', async () 
     });
     const checkIntervalSeconds = validateNum(livestreamCheckInterval.value, 10, 300, 10);
 
+    // Get publish token if field exists
+    const streamPublishToken = document.getElementById('streamPublishToken');
+
     const livestreamConfig = {
         enabled: enableLivestream.checked,
         url: livestreamUrl.value,
         autoDetect: autoDetectLivestream.checked,
-        checkInterval: checkIntervalSeconds * 1000
+        checkInterval: checkIntervalSeconds * 1000,
+        publishToken: streamPublishToken ? streamPublishToken.value : undefined
     };
 
     // Save to localStorage (backup)

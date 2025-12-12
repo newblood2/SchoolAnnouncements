@@ -38,15 +38,15 @@ Since you have OBS 29 or newer, you can use **WHIP** (simplest method):
 
 2. **Settings → Stream:**
    - Service: **WHIP**
-   - Server: `http://YOUR_SERVER_IP:8889/announcements/whip`
-   - Bearer Token: `stream:YOUR_STREAM_TOKEN` (see Authentication section below)
+   - Server: `http://YOUR_SERVER_IP:8080/stream/announcements/whip`
+   - Bearer Token: (leave empty - anonymous publishing is allowed by default)
 
    **Example URLs:**
-   - Same computer: `http://localhost:8889/announcements/whip`
-   - Local network: `http://192.168.1.100:8889/announcements/whip`
-   - TrueNAS: `http://YOUR_TRUENAS_IP:8889/announcements/whip`
+   - Same computer: `http://localhost:8080/stream/announcements/whip`
+   - Local network: `http://192.168.1.100:8080/stream/announcements/whip`
+   - TrueNAS: `http://YOUR_TRUENAS_IP:8080/stream/announcements/whip`
 
-   **Important:** Use port **8889** (MediaMTX), not 8080 (web UI).
+   **Note:** The `/stream/` prefix routes through the main server (port 8080), which is the recommended approach for combined deployments.
 
 3. **Click "Apply"** and **"OK"**
 
@@ -74,7 +74,7 @@ If you're using an older version of OBS without WHIP support:
 1. **Settings → Stream:**
    - Service: **Custom**
    - Server: `rtmp://YOUR_SERVER_IP:1935/announcements`
-   - Stream Key: `?user=stream&pass=YOUR_STREAM_TOKEN` (see Authentication section)
+   - Stream Key: (leave empty - anonymous publishing is allowed by default)
 
 2. **Settings → Output:**
    - Output Mode: **Advanced**
@@ -380,39 +380,58 @@ paths:
     recordFormat: mp4
 ```
 
-### Authentication (via Admin Panel)
+### Authentication (Optional)
 
-Streaming authentication is configured through the Admin Panel - no need to edit config files!
+By default, MediaMTX v1.15+ allows **anonymous publishing** - no token required. This is convenient for local network use where security is managed at the network level.
 
-#### Setting Your Stream Token
+#### Enabling Authentication
 
-1. **Open Admin Panel:** `http://YOUR_SERVER:8080/admin.html`
-2. **Go to "Livestream" tab**
-3. **Find "Stream Publish Token" field**
-4. **Enter a secure token** (or click "Generate" for a random one)
-5. **Click "Save Livestream Settings"**
+To require authentication for streaming, edit `streaming-server/mediamtx.yml` and modify the `authInternalUsers` section:
 
-The token takes effect immediately - no restart needed!
+```yaml
+authInternalUsers:
+  # Replace "any" user with specific credentials
+  - user: stream
+    pass: your-secure-password
+    ips: []
+    permissions:
+      - action: publish
+        path:
+  # Allow anonymous viewing
+  - user: any
+    pass:
+    ips: []
+    permissions:
+      - action: read
+        path:
+      - action: playback
+        path:
+```
 
-#### Configuring OBS with Authentication
+Then restart MediaMTX for changes to take effect.
+
+#### Configuring OBS with Authentication (if enabled)
 
 **For WHIP (OBS 30+):**
 1. Settings → Stream
-2. Bearer Token: `stream:YOUR_TOKEN`
+2. Bearer Token: `username:password`
 
 **For RTMP (Older OBS):**
 1. Settings → Stream
-2. Stream Key: `?user=stream&pass=YOUR_TOKEN`
+2. Stream Key: `?user=username&pass=password`
 
-**Example with token `my-school-stream-2024`:**
-- WHIP Bearer Token: `stream:my-school-stream-2024`
-- RTMP Stream Key: `?user=stream&pass=my-school-stream-2024`
+**Example with user `stream` and password `my-school-2024`:**
+- WHIP Bearer Token: `stream:my-school-2024`
+- RTMP Stream Key: `?user=stream&pass=my-school-2024`
 
-#### Disabling Authentication (Not Recommended)
+#### Security Note
 
-To disable authentication, simply leave the "Stream Publish Token" field empty in the Admin Panel.
+For school networks, anonymous publishing is usually fine since:
+- The network itself is secured
+- Only authorized users have access to OBS on streaming computers
+- TVs/displays are view-only
 
-**Warning:** Anyone on your network could then stream to your displays!
+If you need stricter control, enable authentication as shown above.
 
 ---
 
@@ -461,13 +480,13 @@ docker logs -f school-streaming-server
 
 ### OBS WHIP Setup (OBS 29+)
 - Service: WHIP
-- Server: `http://YOUR_IP:8889/announcements/whip`
-- Bearer Token: `stream:YOUR_STREAM_TOKEN`
+- Server: `http://YOUR_IP:8080/stream/announcements/whip`
+- Bearer Token: (leave empty for anonymous publishing)
 
 ### OBS RTMP Setup (Older OBS)
 - Service: Custom
 - Server: `rtmp://YOUR_IP:1935/announcements`
-- Stream Key: `?user=stream&pass=YOUR_STREAM_TOKEN`
+- Stream Key: (leave empty for anonymous publishing)
 
 ### View Stream
 - Stream Viewer: `http://YOUR_IP:8080/stream-viewer.html`
@@ -484,10 +503,10 @@ docker logs -f school-streaming-server
 ## Next Steps
 
 1. ✅ Start MediaMTX server
-2. ✅ Set stream authentication token
-3. ✅ Configure OBS with WHIP + Bearer Token
-4. ✅ Test stream in browser
-5. ✅ Integrate with announcements display
+2. ✅ Configure OBS with WHIP
+3. ✅ Test stream in browser
+4. ✅ Integrate with announcements display
+5. ⏭️ Set up authentication (optional, for added security)
 6. ⏭️ Set up multiple camera streams (optional)
 7. ⏭️ Configure recording (optional)
 

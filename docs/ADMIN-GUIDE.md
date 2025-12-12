@@ -108,25 +108,16 @@ Enter your livestream URL:
 
 > **Note:** Using `stream-viewer.html` (relative URL) is recommended as it automatically detects the MediaMTX server address, making it work regardless of your server's IP address.
 
-#### Stream Publish Token (Authentication)
-
-Set a token to prevent unauthorized streaming to your displays:
-- Enter a secure token manually, or click **Generate** for a random one
-- This token is required for OBS to connect
-- Changes take effect immediately - no restart needed
-
-> **Security:** Without a token, anyone on your network could stream to your displays!
-
 #### OBS Setup (WHIP - Recommended)
 
 For OBS Studio 29+:
 1. Go to **Settings → Stream**
 2. Set Service: **WHIP**
-3. Set Server: `http://YOUR_SERVER_IP:8889/announcements/whip`
-4. Set Bearer Token: `stream:YOUR_TOKEN` (the token from Admin Panel)
+3. Set Server: `http://YOUR_SERVER_IP:8080/stream/announcements/whip`
+4. Leave Bearer Token empty (anonymous publishing is allowed by default)
 5. Click **Start Streaming**
 
-See [OBS-MEDIAMTX-SETUP.md](OBS-MEDIAMTX-SETUP.md) for detailed configuration.
+> **Note:** For added security, you can enable authentication by editing `streaming-server/mediamtx.yml`. See [OBS-MEDIAMTX-SETUP.md](OBS-MEDIAMTX-SETUP.md) for details.
 
 #### Auto-Detection
 

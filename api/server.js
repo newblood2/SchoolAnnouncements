@@ -312,7 +312,7 @@ app.post('/api/stream/auth', express.json(), async (req, res) => {
         // For publish actions, validate credentials
         if (action === 'publish') {
             // Load the publish token from settings
-            const settings = loadSettings();
+            const settings = await loadSettings();
             const livestreamConfig = settings.livestreamConfig || {};
             const storedToken = livestreamConfig.publishToken;
 

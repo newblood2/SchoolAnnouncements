@@ -79,3 +79,4 @@ docker-compose.local.yml
 # ========================================
 coverage/
 .nyc_output/
+nul
