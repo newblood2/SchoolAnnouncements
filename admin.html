@@ -403,9 +403,9 @@
                     <div id="livestreamOptions">
                         <div class="form-group">
                             <label for="livestreamUrl">Livestream URL</label>
-                            <input type="text" id="livestreamUrl" placeholder="/stream/mystream/" class="form-input">
+                            <input type="text" id="livestreamUrl" placeholder="/stream/announcements/" class="form-input">
                             <small><strong>Options:</strong><br>
-                            - <strong>MediaMTX (local):</strong> /stream/mystream/ (relative path, include trailing slash)<br>
+                            - <strong>MediaMTX (local):</strong> /stream/announcements/ (relative path, include trailing slash)<br>
                             - <strong>YouTube:</strong> https://www.youtube.com/embed/LIVE_STREAM_ID<br>
                             - <strong>Vimeo:</strong> https://player.vimeo.com/video/LIVE_ID</small>
                         </div>
@@ -442,7 +442,7 @@
                         <ol>
                             <li>Open OBS Studio and go to <strong>Settings > Stream</strong></li>
                             <li>Set <strong>Service</strong> to <strong>"WHIP"</strong></li>
-                            <li>Set <strong>Server</strong> to: <code>http://YOUR_SERVER_IP:8889/mystream/whip</code></li>
+                            <li>Set <strong>Server</strong> to: <code>http://YOUR_SERVER_IP:8889/announcements/whip</code></li>
                             <li>Leave <strong>Bearer Token</strong> empty (no authentication required)</li>
                             <li>Click <strong>Apply</strong> then <strong>OK</strong></li>
                         </ol>
@@ -466,7 +466,7 @@
                         <h4>Step 3: Start Streaming</h4>
                         <ol>
                             <li>Click <strong>Start Streaming</strong> in OBS</li>
-                            <li>In this admin panel, set Livestream URL to: <code>/stream/mystream/</code></li>
+                            <li>In this admin panel, set Livestream URL to: <code>/stream/announcements/</code></li>
                             <li>Enable livestream and save settings</li>
                             <li>All displays will automatically switch to the livestream!</li>
                         </ol>
@@ -483,7 +483,7 @@
                         <div class="tip-box" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-color: #f59e0b; color: #92400e;">
                             <strong>Example URLs:</strong><br>
                             <code style="background: #78350f; color: #fef3c7;">http://192.168.1.100:8889/mystream/whip</code> (OBS Server)<br>
-                            <code style="background: #78350f; color: #fef3c7;">/stream/mystream/</code> (Admin Livestream URL)
+                            <code style="background: #78350f; color: #fef3c7;">/stream/announcements/</code> (Admin Livestream URL)
                         </div>
                     </div>
                 </div>

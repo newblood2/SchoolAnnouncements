@@ -153,8 +153,9 @@ See [OBS-MEDIAMTX-SETUP.md](docs/OBS-MEDIAMTX-SETUP.md) for detailed streaming c
 **Quick WHIP Setup (Recommended):**
 1. In OBS, go to Settings > Stream
 2. Set Service to "WHIP"
-3. Set Server to `http://your-server:8080/stream/mystream/whip`
-4. Start streaming
+3. Set Server to `http://YOUR_SERVER_IP:8889/announcements/whip`
+4. Leave Bearer Token empty
+5. Start streaming
 
 ## Architecture
 
