@@ -220,13 +220,124 @@ docker logs school-announcements --tail 50
 - Updates only sent when settings change
 - 30+ simultaneous SSE connections should have negligible impact
 
+## Nginx Proxy Manager Setup (HTTPS & Domain Name)
+
+If you have Nginx Proxy Manager (NPM) running on your TrueNAS or another server, you can use it to provide HTTPS and a domain name for your announcements system.
+
+### Architecture with NPM
+
+```
+Internet/LAN
+     │
+     ▼
+┌──────────────────────────┐
+│  Nginx Proxy Manager     │
+│  (port 443 HTTPS)        │
+│                          │
+│  announcements.school.com│
+└────────────┬─────────────┘
+             │
+             ▼
+┌──────────────────────────────────────────────┐
+│  School Announcements Container (port 8080)   │
+│                                              │
+│  /              → Main Display               │
+│  /admin.html    → Admin Panel                │
+│  /api/*         → Node.js API                │
+│  /stream/*      → MediaMTX Proxy (WHIP/WHEP) │
+└──────────────────────────────────────────────┘
+```
+
+### Step 1: Configure NPM Proxy Host
+
+1. Open Nginx Proxy Manager admin panel
+2. Add new **Proxy Host**:
+   - **Domain Names:** `announcements.yourschool.com` (or your domain)
+   - **Scheme:** `http`
+   - **Forward Hostname/IP:** `ix-school-announcements-school-announcements-1` (container name) or `192.168.x.x` (container IP)
+   - **Forward Port:** `8080`
+   - **Websockets Support:** ✅ Enabled (required for SSE)
+
+3. **SSL Tab:**
+   - Request a new SSL certificate (Let's Encrypt)
+   - Or use existing certificate
+   - Force SSL: ✅ Recommended
+
+### Step 2: Configure OBS for Proxied Streaming
+
+With NPM, OBS can stream through HTTPS:
+
+**OBS Settings → Stream:**
+- **Service:** WHIP
+- **Server:** `https://announcements.yourschool.com/stream/announcements/whip`
+- **Bearer Token:** (leave empty)
+
+### Step 3: Update Livestream Settings
+
+In the Admin Panel → Livestream:
+- **Livestream URL:** `stream-viewer.html` (relative URL works automatically)
+- **Enable auto-detect:** ✅
+
+### WebRTC Media (Important!)
+
+The HTTP signaling (WHIP/WHEP) goes through NPM, but WebRTC media uses UDP.
+
+**For Local Network Viewers:** Works automatically - UDP goes directly to container.
+
+**For Remote/Internet Viewers:** You have two options:
+
+#### Option A: Port Forward UDP (Simplest)
+Forward UDP port 8189 on your router to the TrueNAS server:
+- External Port: 8189 UDP
+- Internal IP: Your TrueNAS IP
+- Internal Port: 8189 UDP
+
+#### Option B: Configure TURN Server (More Complex)
+Edit `streaming-server/mediamtx.yml`:
+```yaml
+webrtcICEServers2:
+  - url: turn:your-turn-server.com:3478
+    username: user
+    password: pass
+```
+
+### Complete NPM + Local Network Setup
+
+For most school deployments (displays on local network):
+
+| Component | URL | Notes |
+|-----------|-----|-------|
+| Main Display | `https://announcements.school.com/` | Through NPM |
+| Admin Panel | `https://announcements.school.com/admin.html` | Through NPM |
+| OBS Streaming | `https://announcements.school.com/stream/announcements/whip` | Through NPM |
+| WebRTC Viewing | Automatic via stream-viewer.html | UDP direct on LAN |
+
+### Testing the Setup
+
+1. **Test Web UI:**
+   ```bash
+   curl -I https://announcements.yourschool.com/
+   ```
+
+2. **Test Stream Proxy:**
+   ```bash
+   curl -I https://announcements.yourschool.com/stream/announcements/
+   ```
+
+3. **Test OBS Connection:**
+   - Start streaming in OBS
+   - Check Admin Panel → Livestream shows "Online"
+   - Main display should auto-switch to livestream
+
+---
+
 ## Production Recommendations
 
 ### Security
 - Change default admin password in config.js
-- Use HTTPS in production (configure nginx SSL)
+- Use HTTPS in production (via NPM or native)
 - Consider adding API authentication
-- Restrict admin panel to specific IPs (nginx config)
+- Restrict admin panel to specific IPs (NPM Access Lists)
 
 ### Reliability
 - Set up automatic container restart: `restart: unless-stopped` (already configured)
