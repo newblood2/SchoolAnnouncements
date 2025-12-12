@@ -39,11 +39,14 @@ Since you have OBS 29 or newer, you can use **WHIP** (simplest method):
 2. **Settings → Stream:**
    - Service: **WHIP**
    - Server: `http://YOUR_SERVER_IP:8889/announcements/whip`
-   - Bearer Token: (leave empty for local network)
+   - Bearer Token: (leave empty)
 
    **Example URLs:**
    - Same computer: `http://localhost:8889/announcements/whip`
    - Local network: `http://192.168.1.100:8889/announcements/whip`
+   - TrueNAS: `http://YOUR_TRUENAS_IP:8889/announcements/whip`
+
+   **Important:** Use port **8889** (MediaMTX), not 8080 (web UI).
 
 3. **Click "Apply"** and **"OK"**
 
@@ -436,6 +439,7 @@ docker logs -f school-streaming-server
 ### OBS WHIP Setup (OBS 29+)
 - Service: WHIP
 - Server: `http://YOUR_IP:8889/announcements/whip`
+- Bearer Token: (leave empty)
 
 ### OBS RTMP Setup (Older OBS)
 - Service: Custom
