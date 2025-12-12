@@ -102,6 +102,21 @@
                 return true;
             }
 
+            // For stream-viewer.html (WebRTC), check the default 'announcements' stream
+            if (url.includes('stream-viewer.html')) {
+                // Extract stream name from URL params if present, default to 'announcements'
+                let streamName = 'announcements';
+                try {
+                    const urlObj = new URL(url, window.location.origin);
+                    streamName = urlObj.searchParams.get('stream') || 'announcements';
+                } catch (e) {
+                    // URL parsing failed, use default
+                }
+
+                console.log('Checking MediaMTX stream (via stream-viewer):', streamName);
+                return await checkMediaMTXStream(streamName);
+            }
+
             // For MediaMTX streams, check the stream API
             if (url.includes(':8889/') || url.includes('/stream/') || url.includes('mediamtx') || url.includes('whip')) {
                 try {
@@ -121,32 +136,7 @@
                     }
 
                     console.log('Checking MediaMTX stream:', streamName);
-
-                    // Check MediaMTX API for stream status
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), CONSTANTS.LIVESTREAM_CHECK_TIMEOUT_MS || 5000);
-
-                    const apiUrl = `/api/stream/${streamName}/status`;
-                    const response = await fetch(apiUrl, {
-                        method: 'GET',
-                        signal: controller.signal
-                    });
-
-                    clearTimeout(timeoutId);
-
-                    const data = await response.json();
-
-                    // Check for error (path not found = stream not active)
-                    if (data.error) {
-                        console.log('MediaMTX stream offline:', data.error);
-                        return false;
-                    }
-
-                    // Check if stream has an active source (publisher)
-                    // When OBS is streaming, source will have a type like "rtmpConn"
-                    const isPublishing = data.source && data.source.id && data.source.id !== '';
-                    console.log('MediaMTX stream status:', isPublishing ? 'ONLINE (publishing)' : 'offline (no publisher)', data.source);
-                    return isPublishing;
+                    return await checkMediaMTXStream(streamName);
 
                 } catch (error) {
                     console.log('MediaMTX stream check failed:', error.message);
@@ -169,6 +159,47 @@
 
         } catch (error) {
             console.log('Livestream not available:', error.message);
+            return false;
+        }
+    }
+
+    /**
+     * Check MediaMTX stream status via API
+     * @param {string} streamName - Name of the stream to check
+     * @returns {Promise<boolean>} True if stream has active publisher
+     */
+    async function checkMediaMTXStream(streamName) {
+        try {
+            // Check MediaMTX API for stream status
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), CONSTANTS.LIVESTREAM_CHECK_TIMEOUT_MS || 5000);
+
+            const apiUrl = `/api/stream/${streamName}/status`;
+            const response = await fetch(apiUrl, {
+                method: 'GET',
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            const data = await response.json();
+
+            // Check if stream is online (has active publisher)
+            if (data.online) {
+                console.log('MediaMTX stream status: ONLINE', data.source);
+                return true;
+            }
+
+            // Check for error or offline
+            if (data.error) {
+                console.log('MediaMTX stream offline:', data.error);
+            } else {
+                console.log('MediaMTX stream offline (no publisher)');
+            }
+            return false;
+
+        } catch (error) {
+            console.log('MediaMTX stream check failed:', error.message);
             return false;
         }
     }
