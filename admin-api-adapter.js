@@ -93,7 +93,7 @@
                 const n = parseInt(v);
                 return (!isNaN(n) && n >= min && n <= max) ? n : def;
             });
-            const checkIntervalSeconds = validateNum(document.getElementById('livestreamCheckInterval').value, 10, 300, 60);
+            const checkIntervalSeconds = validateNum(document.getElementById('livestreamCheckInterval').value, 10, 300, 10);
 
             const livestreamConfig = {
                 enabled: document.getElementById('enableLivestream').checked,

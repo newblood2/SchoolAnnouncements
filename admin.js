@@ -807,7 +807,11 @@ async function initializeAdmin() {
 
     // Load livestream config (API first, then localStorage)
     const livestreamConfig = settings.livestreamConfig || JSON.parse(localStorage.getItem('livestreamConfig') || '{}');
+    console.log('DEBUG: settings.livestreamConfig:', settings.livestreamConfig);
+    console.log('DEBUG: final livestreamConfig:', livestreamConfig);
+    console.log('DEBUG: enabled value:', livestreamConfig.enabled, 'type:', typeof livestreamConfig.enabled);
     enableLivestream.checked = livestreamConfig.enabled === true;
+    console.log('DEBUG: checkbox set to:', enableLivestream.checked);
     livestreamUrl.value = livestreamConfig.url || '';
     autoDetectLivestream.checked = livestreamConfig.autoDetect === true;
     livestreamCheckInterval.value = (livestreamConfig.checkInterval || 10000) / 1000;
