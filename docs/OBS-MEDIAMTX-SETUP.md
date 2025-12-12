@@ -149,15 +149,18 @@ You should see your `announcements` path listed with `ready: true`.
 2. Login with your password
 3. Click **"Livestream"** tab
 4. **Enable livestream** toggle
-5. **Livestream URL:** `http://YOUR_SERVER_IP:8080/stream-viewer.html`
+5. **Livestream URL:** `stream-viewer.html` (auto-detects MediaMTX server)
 6. **Enable "Auto-detect when livestream is online"**
-7. **Check interval:** 30 seconds
+7. **Check interval:** 15-30 seconds
 8. Click **"Save Livestream Settings"**
 9. Refresh main display
 
-### Option 2: Direct Integration
+> **Note:** Using just `stream-viewer.html` (relative URL) is recommended. It automatically detects the MediaMTX server address based on your current hostname, so you don't need to hardcode IP addresses.
 
-Modify `index.html` to use `stream-viewer.html` when livestream is active.
+### Option 2: Direct URL (if needed)
+
+If auto-detection doesn't work, you can specify the full URL:
+- `http://YOUR_SERVER_IP:8080/stream-viewer.html?server=YOUR_SERVER_IP:8889`
 
 ---
 

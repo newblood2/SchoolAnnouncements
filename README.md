@@ -150,12 +150,21 @@ See [docs/TRUENAS-DEPLOYMENT.md](docs/TRUENAS-DEPLOYMENT.md) for deploying on Tr
 
 See [OBS-MEDIAMTX-SETUP.md](docs/OBS-MEDIAMTX-SETUP.md) for detailed streaming configuration.
 
-**Quick WHIP Setup (Recommended):**
-1. In OBS, go to Settings > Stream
-2. Set Service to "WHIP"
-3. Set Server to `http://YOUR_SERVER_IP:8889/announcements/whip`
-4. Leave Bearer Token empty
-5. Start streaming
+**Quick Setup:**
+
+1. **Configure Display** (Admin Panel → Livestream):
+   - Enable livestream
+   - Set URL to `stream-viewer.html` (auto-detects MediaMTX server)
+   - Enable "Auto-detect when livestream is online"
+
+2. **Configure OBS** (WHIP - Recommended for OBS 29+):
+   - Go to Settings → Stream
+   - Set Service to "WHIP"
+   - Set Server to `http://YOUR_SERVER_IP:8889/announcements/whip`
+   - Leave Bearer Token empty
+   - Start streaming
+
+The display will automatically switch to the livestream when OBS starts broadcasting.
 
 ## Architecture
 

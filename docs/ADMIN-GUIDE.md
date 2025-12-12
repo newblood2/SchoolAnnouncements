@@ -102,9 +102,11 @@ Use the toggle switch to enable or disable livestream functionality.
 #### Livestream URL
 
 Enter your livestream URL:
-- **WebRTC (Recommended):** `http://YOUR_SERVER_IP:8080/stream-viewer.html`
+- **WebRTC (Recommended):** `stream-viewer.html` - Auto-detects MediaMTX server on your network
 - **YouTube Live:** `https://www.youtube.com/embed/YOUR_VIDEO_ID`
 - Any iframe-compatible video source
+
+> **Note:** Using `stream-viewer.html` (relative URL) is recommended as it automatically detects the MediaMTX server address, making it work regardless of your server's IP address.
 
 #### OBS Setup (WHIP - Recommended)
 
