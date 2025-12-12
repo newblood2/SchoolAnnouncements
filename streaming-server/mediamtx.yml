@@ -39,7 +39,7 @@ webrtcLocalUDPAddress: :8189
 webrtcLocalTCPAddress: :8189
 webrtcIPsFromInterfaces: yes
 webrtcIPsFromInterfacesList: []
-webrtcAdditionalHosts: []
+webrtcAdditionalHosts: ["192.168.2.17"]
 webrtcICEServers2: []
 
 # Paths (streaming endpoints)
