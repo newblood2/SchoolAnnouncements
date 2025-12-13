@@ -319,20 +319,25 @@
             showStatus('Connecting to stream...', 'loading');
 
             try {
-                // Create RTCPeerConnection
+                // Create RTCPeerConnection with multiple STUN servers for better mobile compatibility
                 pc = new RTCPeerConnection({
                     iceServers: [
-                        {
-                            urls: ['stun:stun.l.google.com:19302']
-                        }
-                    ]
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' },
+                        { urls: 'stun:stun2.l.google.com:19302' },
+                        { urls: 'stun:stun.cloudflare.com:3478' }
+                    ],
+                    iceCandidatePoolSize: 10
                 });
 
                 // Setup event handlers
                 pc.oniceconnectionstatechange = () => {
                     log(`ICE connection state: ${pc.iceConnectionState}`, 'info');
 
-                    if (pc.iceConnectionState === 'connected') {
+                    // Update status for user visibility
+                    if (pc.iceConnectionState === 'checking') {
+                        showStatus('Establishing connection...', 'loading');
+                    } else if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
                         log('WebRTC connected successfully!', 'success');
                         hideStatus();
 
@@ -345,9 +350,14 @@
                                 updateMuteButton();
                             }, 500);
                         }
-                    } else if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'closed') {
-                        log('WebRTC connection failed or closed', 'error');
-                        handleError('Connection failed. Reconnecting...');
+                    } else if (pc.iceConnectionState === 'failed') {
+                        log('WebRTC ICE connection failed', 'error');
+                        handleError('Connection failed (ICE). Check network/firewall.');
+                    } else if (pc.iceConnectionState === 'disconnected') {
+                        showStatus('Connection interrupted. Waiting...', 'reconnecting');
+                    } else if (pc.iceConnectionState === 'closed') {
+                        log('WebRTC connection closed', 'error');
+                        handleError('Connection closed. Reconnecting...');
                     }
                 };
 
