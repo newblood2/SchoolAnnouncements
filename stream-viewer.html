@@ -374,19 +374,28 @@
                 const offer = await pc.createOffer();
                 await pc.setLocalDescription(offer);
 
-                // Wait for ICE gathering to complete
+                // Wait for ICE gathering (with 2 second timeout for faster connections)
+                showStatus('Gathering network info...', 'loading');
                 await new Promise((resolve) => {
                     if (pc.iceGatheringState === 'complete') {
                         resolve();
-                    } else {
-                        const checkState = () => {
-                            if (pc.iceGatheringState === 'complete') {
-                                pc.removeEventListener('icegatheringstatechange', checkState);
-                                resolve();
-                            }
-                        };
-                        pc.addEventListener('icegatheringstatechange', checkState);
+                        return;
                     }
+
+                    // Timeout after 2 seconds - proceed with whatever candidates we have
+                    const timeout = setTimeout(() => {
+                        log('ICE gathering timeout, proceeding with available candidates', 'info');
+                        resolve();
+                    }, 2000);
+
+                    const checkState = () => {
+                        if (pc.iceGatheringState === 'complete') {
+                            clearTimeout(timeout);
+                            pc.removeEventListener('icegatheringstatechange', checkState);
+                            resolve();
+                        }
+                    };
+                    pc.addEventListener('icegatheringstatechange', checkState);
                 });
 
                 // Send offer to MediaMTX WHEP endpoint
