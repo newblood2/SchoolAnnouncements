@@ -205,30 +205,27 @@
                           urlParams.get('autoUnmute') === '1' ||
                           urlParams.get('kiosk') === '1';
 
-        // Get server address:
-        // 1. From URL parameter ?server=192.168.1.100:8889
-        // 2. From localStorage config
-        // 3. Auto-detect: use current hostname with MediaMTX port 8889
-        let serverAddress = urlParams.get('server');
+        // Get WHEP URL:
+        // 1. From URL parameter ?server=192.168.1.100:8889 (direct MediaMTX)
+        // 2. Use proxy route through main server (recommended for mobile compatibility)
+        const directServer = urlParams.get('server');
+        const useDirect = urlParams.get('direct') === '1';
 
-        if (!serverAddress && livestreamConfig.url) {
-            try {
-                const url = new URL(livestreamConfig.url);
-                if (url.port === '8889' || url.pathname.includes('/whep')) {
-                    serverAddress = url.host;
-                }
-            } catch (e) {
-                console.log('Could not parse livestream config URL');
-            }
-        }
+        let whepUrl;
 
-        if (!serverAddress) {
-            // Auto-detect: use same hostname as current page but with MediaMTX port
+        if (directServer) {
+            // Direct connection to MediaMTX (for advanced users)
+            whepUrl = `http://${directServer}/${streamName}/whep`;
+        } else if (useDirect) {
+            // Direct connection using current host with MediaMTX port
             const currentHost = window.location.hostname || 'localhost';
-            serverAddress = `${currentHost}:8889`;
+            whepUrl = `http://${currentHost}:8889/${streamName}/whep`;
+        } else {
+            // Default: Use proxy route through main server (port 8080)
+            // This works better for mobile devices and avoids port issues
+            const origin = window.location.origin;
+            whepUrl = `${origin}/stream/${streamName}/whep`;
         }
-
-        const whepUrl = `http://${serverAddress}/${streamName}/whep`;
 
         let pc = null;
         let restartTimeout = null;
