@@ -288,6 +288,37 @@
     }
 
     /**
+     * Process URL parameters for display configuration
+     * Allows Chromecast/kiosk displays to auto-configure via URL:
+     * display.html?name=GymTV&location=Gymnasium&tags=gym,sports
+     */
+    function processUrlParameters() {
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Process display name from URL
+        const urlName = urlParams.get('name');
+        if (urlName) {
+            localStorage.setItem('displayName', urlName);
+            console.log('Display name set from URL:', urlName);
+        }
+
+        // Process display location from URL
+        const urlLocation = urlParams.get('location');
+        if (urlLocation) {
+            localStorage.setItem('displayLocation', urlLocation);
+            console.log('Display location set from URL:', urlLocation);
+        }
+
+        // Process display tags from URL (comma-separated)
+        const urlTags = urlParams.get('tags');
+        if (urlTags) {
+            const tags = urlTags.split(',').map(t => t.trim().toLowerCase()).filter(t => t);
+            localStorage.setItem('displayTags', JSON.stringify(tags));
+            console.log('Display tags set from URL:', tags);
+        }
+    }
+
+    /**
      * Get display info for registration
      */
     function getDisplayInfo() {
@@ -500,10 +531,13 @@
      * Initialize theme loader
      */
     function init() {
-        // First, try to load from API
+        // Process URL parameters first (for Chromecast/kiosk configuration)
+        processUrlParameters();
+
+        // Then load settings from API
         loadSettingsFromAPI();
 
-        // Then connect to SSE for real-time updates
+        // Connect to SSE for real-time updates
         connectSSE();
     }
 

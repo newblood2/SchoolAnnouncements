@@ -1,0 +1,33 @@
+# Chromecast-Kiosk Docker Compose Configuration
+# Casts school announcements to multiple Chromecast devices
+#
+# Usage:
+#   docker-compose up -d
+#
+# After starting, access the web interface at:
+#   http://YOUR_SERVER_IP:8081/presenter
+#
+# Requirements:
+#   - Must run with network_mode: host for Chromecast discovery (mDNS)
+#   - Each Chromecast should have a static IP address
+#   - Configure displays via the web interface
+
+version: '3.8'
+
+services:
+  chromecast-kiosk:
+    image: rez0n/chromecast-kiosk:latest
+    container_name: school-announcements-chromecast
+    network_mode: host  # Required for Chromecast discovery via mDNS
+    volumes:
+      # Persist configuration across restarts
+      - chromecast-config:/usr/local/tomcat/webapps/presenter/WEB-INF/config
+    environment:
+      - TZ=America/Chicago  # Adjust to your timezone
+      # Note: Web interface runs on port 8080 inside container
+      # With network_mode: host, access at http://server:8080/presenter
+    restart: unless-stopped
+
+volumes:
+  chromecast-config:
+    name: school-announcements-chromecast-config
